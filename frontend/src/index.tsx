@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { initializeOpenTelemetry } from './observability/telemetry';
+
+// Initialize OpenTelemetry before anything else
+initializeOpenTelemetry();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

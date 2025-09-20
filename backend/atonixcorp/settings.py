@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_extensions',
     'security',  # Security module
+    'observability',  # OpenTelemetry observability
     'core',
     'projects',
     'teams',
@@ -87,6 +88,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'observability.middleware.OpenTelemetryMiddleware',  # OpenTelemetry tracing
+    'observability.middleware.PerformanceMonitoringMiddleware',  # Performance metrics
     'security.middleware.SecurityMiddleware',  # Custom security middleware
     'security.middleware.IPWhitelistMiddleware',  # IP whitelist for admin
     'security.middleware.RequestValidationMiddleware',  # Request validation
@@ -374,3 +377,43 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Security referrer policy
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# =============================================================================
+# OPENTELEMETRY CONFIGURATION
+# =============================================================================
+
+# OpenTelemetry settings
+OTEL_ENABLED = env.bool('OTEL_ENABLED', default=True)
+OTEL_SERVICE_NAME = env('OTEL_SERVICE_NAME', default='atonixcorp-platform')
+OTEL_SERVICE_VERSION = env('OTEL_SERVICE_VERSION', default='1.0.0')
+OTEL_RESOURCE_ATTRIBUTES = env('OTEL_RESOURCE_ATTRIBUTES', default='')
+
+# Tracing configuration
+OTEL_ENABLE_CONSOLE = env.bool('OTEL_ENABLE_CONSOLE', default=DEBUG)
+OTEL_ENABLE_JAEGER = env.bool('OTEL_ENABLE_JAEGER', default=True)
+OTEL_ENABLE_OTLP = env.bool('OTEL_ENABLE_OTLP', default=False)
+JAEGER_ENDPOINT = env('JAEGER_ENDPOINT', default='http://localhost:14268/api/traces')
+JAEGER_AGENT_HOST = env('JAEGER_AGENT_HOST', default='localhost')
+JAEGER_AGENT_PORT = int(env('JAEGER_AGENT_PORT', default=6831))
+
+# Metrics configuration
+OTEL_ENABLE_PROMETHEUS = env.bool('OTEL_ENABLE_PROMETHEUS', default=True)
+PROMETHEUS_METRICS_PORT = int(env('PROMETHEUS_METRICS_PORT', default=8001))
+
+# OTLP configuration
+OTEL_EXPORTER_OTLP_ENDPOINT = env('OTEL_EXPORTER_OTLP_ENDPOINT', default='http://localhost:4317')
+OTEL_EXPORTER_OTLP_HEADERS = env('OTEL_EXPORTER_OTLP_HEADERS', default='')
+
+# Sampling configuration
+OTEL_TRACES_SAMPLER = env('OTEL_TRACES_SAMPLER', default='parentbased_traceidratio')
+OTEL_TRACES_SAMPLER_ARG = float(env('OTEL_TRACES_SAMPLER_ARG', default=1.0))
+
+# Initialize OpenTelemetry if enabled
+if OTEL_ENABLED:
+    try:
+        from observability import initialize_opentelemetry
+        initialize_opentelemetry()
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f'Failed to initialize OpenTelemetry: {e}')
