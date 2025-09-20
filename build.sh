@@ -6,18 +6,39 @@ set -e
 echo "🚀 AtonixCorp Platform - Unified Container Builder"
 echo "=================================================="
 
+# Configuration
+REGISTRY="quay.io/atonixdev"
+IMAGE_NAME="atonixcorp-platform"
+LOCAL_TAG="atonixcorp-platform:latest"
+VERSION="${VERSION:-latest}"
+REGISTRY_TAG="${REGISTRY}/${IMAGE_NAME}:${VERSION}"
+
 # Function to show usage
 show_usage() {
-    echo "Usage: $0 [command]"
+    echo "Usage: $0 [command] [options]"
     echo ""
     echo "Commands:"
-    echo "  build     - Build the unified container"
-    echo "  run       - Run the unified container with dependencies"
-    echo "  dev       - Run in development mode (with code mounting)"
-    echo "  stop      - Stop all containers"
-    echo "  logs      - Show container logs"
-    echo "  clean     - Clean up containers and images"
-    echo "  help      - Show this help message"
+    echo "  build      - Build the unified container"
+    echo "  run        - Run the unified container with dependencies"
+    echo "  dev        - Run in development mode (with code mounting)"
+    echo "  stop       - Stop all containers"
+    echo "  logs       - Show container logs"
+    echo "  clean      - Clean up containers and images"
+    echo "  tag        - Tag image for registry (VERSION=v1.0.0)"
+    echo "  push       - Push image to Quay.io registry"
+    echo "  login      - Login to Quay.io registry"
+    echo "  release    - Build, tag and push (VERSION=v1.0.0)"
+    echo "  help       - Show this help message"
+    echo ""
+    echo "Environment Variables:"
+    echo "  VERSION    - Image version tag (default: latest)"
+    echo "  REGISTRY   - Container registry (default: quay.io/atonixdev)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 build                    # Build latest"
+    echo "  VERSION=v1.0.0 $0 tag      # Tag with version"
+    echo "  VERSION=v1.0.0 $0 push     # Push specific version"
+    echo "  VERSION=v1.0.0 $0 release  # Build, tag and push"
     echo ""
 }
 
@@ -84,6 +105,55 @@ clean_up() {
     echo "✅ Cleanup completed!"
 }
 
+# Function to login to registry
+registry_login() {
+    echo "🔐 Logging into Quay.io registry..."
+    echo "Please enter your Quay.io credentials:"
+    nerdctl login quay.io
+    echo "✅ Login successful!"
+}
+
+# Function to tag image for registry
+tag_image() {
+    echo "🏷️  Tagging image for registry..."
+    echo "Local tag: ${LOCAL_TAG}"
+    echo "Registry tag: ${REGISTRY_TAG}"
+    
+    if ! nerdctl image inspect "${LOCAL_TAG}" &>/dev/null; then
+        echo "❌ Local image ${LOCAL_TAG} not found. Run 'build' first."
+        exit 1
+    fi
+    
+    nerdctl tag "${LOCAL_TAG}" "${REGISTRY_TAG}"
+    echo "✅ Image tagged successfully!"
+}
+
+# Function to push image to registry
+push_image() {
+    echo "📤 Pushing image to registry..."
+    echo "Pushing: ${REGISTRY_TAG}"
+    
+    if ! nerdctl image inspect "${REGISTRY_TAG}" &>/dev/null; then
+        echo "❌ Registry tagged image not found. Run 'tag' first."
+        exit 1
+    fi
+    
+    nerdctl push "${REGISTRY_TAG}"
+    echo "✅ Image pushed successfully!"
+    echo "🌐 Image available at: ${REGISTRY_TAG}"
+}
+
+# Function to build, tag and push (full release)
+release_image() {
+    echo "🚀 Starting full release process..."
+    check_requirements
+    build_container
+    tag_image
+    push_image
+    echo "🎉 Release completed successfully!"
+    echo "🌐 Image available at: ${REGISTRY_TAG}"
+}
+
 # Function to check requirements
 check_requirements() {
     echo "🔍 Checking requirements..."
@@ -133,6 +203,18 @@ case "${1:-help}" in
         ;;
     "clean")
         clean_up
+        ;;
+    "login")
+        registry_login
+        ;;
+    "tag")
+        tag_image
+        ;;
+    "push")
+        push_image
+        ;;
+    "release")
+        release_image
         ;;
     "help"|*)
         show_usage

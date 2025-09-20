@@ -76,17 +76,55 @@ docker run -d -p 8080:8080 \
 docker-compose -f docker-compose.simple.yml up -d
 ```
 
-### Option 3: Push to Container Registry
+### Option 3: Deploy from Quay.io Registry (Recommended)
 ```bash
-# Tag for your registry
-nerdctl tag atonixcorp-platform:latest your-registry.com/atonixcorp-platform:latest
-
-# Push to registry
-nerdctl push your-registry.com/atonixcorp-platform:latest
+# Pull from Quay.io registry
+docker pull quay.io/atonixdev/atonixcorp-platform:latest
 
 # Deploy from registry
-docker pull your-registry.com/atonixcorp-platform:latest
-docker run -d -p 8080:8080 your-registry.com/atonixcorp-platform:latest
+docker run -d -p 8080:8080 \
+  -e DATABASE_URL="postgresql://user:pass@your-db:5432/dbname" \
+  -e REDIS_URL="redis://your-redis:6379" \
+  -e DEBUG=False \
+  -e ALLOWED_HOSTS="your-domain.com" \
+  --name atonixcorp-app \
+  quay.io/atonixdev/atonixcorp-platform:latest
+```
+
+### Option 4: Deploy with Docker Compose from Registry
+```yaml
+# docker-compose.prod.yml
+version: '3.8'
+services:
+  app:
+    image: quay.io/atonixdev/atonixcorp-platform:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/dbname
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=False
+    depends_on:
+      - db
+      - redis
+  
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: atonixcorp
+      POSTGRES_USER: atonixcorp
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
 ```
 
 ## 🔗 Access Points in Production
