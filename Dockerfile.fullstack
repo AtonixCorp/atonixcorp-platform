@@ -80,22 +80,23 @@ RUN chown -R app:app /app && \
     chmod +x /app/start.sh
 
 # Create nginx configuration
-RUN rm /etc/nginx/sites-enabled/default
+RUN rm -f /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Expose ports
-EXPOSE 80 8000
+EXPOSE 8080 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:80/health/ || exit 1
-
-# Switch to app user
-USER app
+    CMD curl -f http://localhost:8080/health/ || exit 1
 
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV DJANGO_SETTINGS_MODULE=atonixcorp.settings
 ENV PYTHONUNBUFFERED=1
+
+# Run as root to allow supervisor to manage services
+USER root
 
 # Start command
 CMD ["/app/start.sh"]

@@ -42,9 +42,6 @@ fi
 # Create required directories
 mkdir -p /app/logs /app/static /app/media
 
-# Copy nginx configuration
-cp /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
 # Set proper permissions
 chown -R app:app /app/logs /app/static /app/media
 
