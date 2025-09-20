@@ -331,11 +331,6 @@ services:
       - EMAIL_PORT=1025
       - EMAIL_USE_TLS=False
       - DEFAULT_FROM_EMAIL=noreply@atonixcorp.com
-      - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-      - EMAIL_HOST=mailhog
-      - EMAIL_PORT=1025
-      - EMAIL_USE_TLS=False
-      - DEFAULT_FROM_EMAIL=noreply@atonixcorp.com
       - SECRET_KEY=your-super-secret-key-change-in-production
     depends_on:
       db:
