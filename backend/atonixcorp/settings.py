@@ -37,13 +37,13 @@ REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
 # Zookeeper Configuration
 ZOOKEEPER_HOSTS = os.getenv('ZOOKEEPER_HOSTS', 'localhost:2181')
-ZOOKEEPER_ENABLED = os.getenv('ZOOKEEPER_ENABLED', 'true').lower() == 'true'
+ZOOKEEPER_ENABLED = os.getenv('ZOOKEEPER_ENABLED', 'false').lower() == 'true'
 
 # Kafka Configuration
 KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 KAFKA_CLIENT_ID = os.getenv('KAFKA_CLIENT_ID', 'atonixcorp-django')
 KAFKA_CONSUMER_GROUP_ID = os.getenv('KAFKA_CONSUMER_GROUP_ID', 'atonixcorp-consumers')
-KAFKA_ENABLED = os.getenv('KAFKA_ENABLED', 'true').lower() == 'true'
+KAFKA_ENABLED = os.getenv('KAFKA_ENABLED', 'false').lower() == 'true'
 
 # Email Configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
@@ -218,3 +218,159 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Static files configuration
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+
+# Environment variable helper
+class Config:
+    def __call__(self, key, default=None, cast=str):
+        value = os.environ.get(key, default)
+        if cast == bool:
+            return str(value).lower() in ('true', '1', 'yes', 'on')
+        elif cast == list and isinstance(value, str):
+            return value.split(',') if value else []
+        return cast(value) if value is not None else default
+    
+    def list(self, key, default=None):
+        return self(key, default or [], cast=list)
+    
+    def bool(self, key, default=False):
+        return self(key, default, cast=bool)
+
+env = Config()
+
+# Encryption settings
+ENCRYPTION_KEY = env('ENCRYPTION_KEY', default=None)
+JWT_SECRET_KEY = env('JWT_SECRET_KEY', default=SECRET_KEY)
+JWT_ACCESS_TOKEN_LIFETIME = 900  # 15 minutes
+JWT_REFRESH_TOKEN_LIFETIME = 604800  # 7 days
+JWT_ISSUER = 'atonixcorp-platform'
+API_KEY_SALT = env('API_KEY_SALT', default='default-salt')
+AES_PASSWORD = env('AES_PASSWORD', default='default-aes-password')
+AES_SALT = env('AES_SALT', default='default-salt').encode() if isinstance(env('AES_SALT', default='default-salt'), str) else env('AES_SALT', default=b'default-salt')
+
+# Rate limiting settings
+RATE_LIMIT_REQUESTS = int(env('RATE_LIMIT_REQUESTS', default=60))
+RATE_LIMIT_WINDOW = int(env('RATE_LIMIT_WINDOW', default=60))
+MAX_REQUEST_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Authentication settings
+AUTH_MAX_ATTEMPTS = int(env('AUTH_MAX_ATTEMPTS', default=5))
+AUTH_LOCKOUT_TIME = int(env('AUTH_LOCKOUT_TIME', default=900))
+
+# Admin IP whitelist
+ADMIN_WHITELIST_IPS = env.list('ADMIN_WHITELIST_IPS', default=[])
+
+# Security headers
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+X_FRAME_OPTIONS = 'DENY'
+
+# HTTPS settings
+if env.bool('USE_HTTPS', default=False):
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# Session security
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Strict'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1 hour
+
+# CSRF protection
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+CSRF_USE_SESSIONS = True
+
+# Update CORS settings
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=False)
+cors_origins = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:3000', 'http://127.0.0.1:3000'])
+CORS_ALLOWED_ORIGINS = cors_origins
+
+# File upload security
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+
+# Cache settings for security features
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,  # Use the same Redis URL from above
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Logging configuration for security events
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'maxBytes': 10*1024*1024,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 12,
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Security referrer policy
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
