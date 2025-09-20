@@ -25,9 +25,22 @@ services:
       - "8080:8080"
     environment:
       - DATABASE_URL=postgresql://atonixcorp:atonixpass@db:5432/atonixcorp
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://redis:6379/0
       - DJANGO_SETTINGS_MODULE=atonixcorp.settings
       - DEBUG=True
+      # Security environment variables
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - API_KEY_SALT=${API_KEY_SALT}
+      - AES_PASSWORD=${AES_PASSWORD}
+      - AES_SALT=${AES_SALT}
+      - USE_HTTPS=false
+      - ZOOKEEPER_ENABLED=false
+      - KAFKA_ENABLED=false
+      - RATE_LIMIT_REQUESTS=60
+      - AUTH_MAX_ATTEMPTS=5
+    env_file:
+      - .env
     depends_on:
       - db
       - redis
