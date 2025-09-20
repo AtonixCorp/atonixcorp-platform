@@ -371,6 +371,12 @@ variable "resource_limits" {
       memory_request = string
       memory_limit   = string
     })
+    kafka = object({
+      cpu_request    = string
+      cpu_limit      = string
+      memory_request = string
+      memory_limit   = string
+    })
   })
   
   default = {
@@ -410,5 +416,81 @@ variable "resource_limits" {
       memory_request = "512Mi"
       memory_limit   = "2Gi"
     }
+    kafka = {
+      cpu_request    = "500m"
+      cpu_limit      = "2000m"
+      memory_request = "1Gi"
+      memory_limit   = "4Gi"
+    }
   }
+}
+
+# ==========================
+# Kafka Configuration Variables
+# ==========================
+
+variable "kafka_replicas" {
+  description = "Number of Kafka broker replicas"
+  type        = number
+  default     = 1
+}
+
+variable "kafka_replication_factor" {
+  description = "Default replication factor for Kafka topics"
+  type        = number
+  default     = 1
+}
+
+variable "kafka_min_isr" {
+  description = "Minimum in-sync replicas for Kafka"
+  type        = number
+  default     = 1
+}
+
+variable "kafka_default_partitions" {
+  description = "Default number of partitions for Kafka topics"
+  type        = number
+  default     = 3
+}
+
+variable "kafka_log_retention_hours" {
+  description = "Kafka log retention in hours"
+  type        = number
+  default     = 168  # 7 days
+}
+
+variable "kafka_log_segment_bytes" {
+  description = "Kafka log segment size in bytes"
+  type        = number
+  default     = 1073741824  # 1GB
+}
+
+variable "kafka_message_max_bytes" {
+  description = "Maximum Kafka message size in bytes"
+  type        = number
+  default     = 1000000  # 1MB
+}
+
+variable "kafka_auto_create_topics" {
+  description = "Enable Kafka auto topic creation"
+  type        = bool
+  default     = true
+}
+
+variable "kafka_storage_size" {
+  description = "Storage size for Kafka data"
+  type        = string
+  default     = "10Gi"
+}
+
+variable "kafka_enable_external_access" {
+  description = "Enable external access to Kafka"
+  type        = bool
+  default     = false
+}
+
+variable "kafka_external_node_port" {
+  description = "NodePort for external Kafka access"
+  type        = number
+  default     = 30092
 }

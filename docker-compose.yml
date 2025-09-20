@@ -68,6 +68,133 @@ services:
       retries: 5
       start_period: 30s
 
+  # Apache Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: atonixcorp_kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_DELETE_TOPIC_ENABLE: true
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000
+      KAFKA_MESSAGE_MAX_BYTES: 1000000
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 1048576
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "9101:9101"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - atonixcorp_network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Kafka UI (for development and monitoring)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: atonixcorp_kafka_ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_JMXPORT: 9101
+    ports:
+      - "8090:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - atonixcorp_network
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: atonixcorp_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: rabbitmq_password
+      RABBITMQ_DEFAULT_VHOST: atonixcorp
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error},{default,info}] disk_free_limit 2147483648
+      RABBITMQ_MANAGEMENT_ALLOW_WEB_DISPATCH: "true"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI port
+      - "15692:15692" # Prometheus metrics port
+    networks:
+      - atonixcorp_network
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # MailHog (Development Email Server)
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: atonixcorp_mailhog
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI port
+    networks:
+      - atonixcorp_network
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /maildir
+    volumes:
+      - mailhog_data:/maildir
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8025 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Postfix (Production Email Relay)
+  postfix:
+    image: juanluisbaptiste/postfix:1.4.0
+    container_name: atonixcorp_postfix
+    environment:
+      SMTP_SERVER: ${SMTP_SERVER:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SERVER_HOSTNAME: ${SERVER_HOSTNAME:-atonixcorp.local}
+      SMTP_NETWORKS: ${SMTP_NETWORKS:-172.16.0.0/12}
+    ports:
+      - "1587:587" # SMTP submission port
+    networks:
+      - atonixcorp_network
+    profiles:
+      - production
+    healthcheck:
+      test: ["CMD-SHELL", "postfix status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Django Backend
   backend:
     build:
@@ -89,6 +216,15 @@ services:
       - DATABASE_URL=postgresql://atonixcorp_user:atonixcorp_password@db:5432/atonixcorp
       - REDIS_URL=redis://:redis_password@redis:6379/0
       - ZOOKEEPER_HOSTS=zookeeper:2181
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - RABBITMQ_URL=amqp://admin:rabbitmq_password@rabbitmq:5672/atonixcorp
+      - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - EMAIL_HOST=mailhog
+      - EMAIL_PORT=1025
+      - EMAIL_USE_TLS=False
+      - EMAIL_HOST_USER=
+      - EMAIL_HOST_PASSWORD=
+      - DEFAULT_FROM_EMAIL=noreply@atonixcorp.com
       - SECRET_KEY=your-super-secret-key-change-in-production
       - ALLOWED_HOSTS=localhost,127.0.0.1,backend,nginx
     depends_on:
@@ -188,6 +324,18 @@ services:
       - DATABASE_URL=postgresql://atonixcorp_user:atonixcorp_password@db:5432/atonixcorp
       - REDIS_URL=redis://:redis_password@redis:6379/0
       - ZOOKEEPER_HOSTS=zookeeper:2181
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - RABBITMQ_URL=amqp://admin:rabbitmq_password@rabbitmq:5672/atonixcorp
+      - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - EMAIL_HOST=mailhog
+      - EMAIL_PORT=1025
+      - EMAIL_USE_TLS=False
+      - DEFAULT_FROM_EMAIL=noreply@atonixcorp.com
+      - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - EMAIL_HOST=mailhog
+      - EMAIL_PORT=1025
+      - EMAIL_USE_TLS=False
+      - DEFAULT_FROM_EMAIL=noreply@atonixcorp.com
       - SECRET_KEY=your-super-secret-key-change-in-production
     depends_on:
       db:
@@ -195,6 +343,12 @@ services:
       redis:
         condition: service_healthy
       zookeeper:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mailhog:
         condition: service_healthy
     networks:
       - atonixcorp_network
@@ -204,6 +358,9 @@ volumes:
   redis_data:
   zookeeper_data:
   zookeeper_logs:
+  kafka_data:
+  rabbitmq_data:
+  mailhog_data:
   static_volume:
   media_volume:
 

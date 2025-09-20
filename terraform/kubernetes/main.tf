@@ -118,6 +118,37 @@ module "zookeeper" {
   annotations = local.annotations
 }
 
+# Kafka Module
+module "kafka" {
+  source = "./modules/kafka"
+  
+  namespace = module.namespace.name
+  
+  zookeeper_connect      = module.zookeeper.connection_string
+  zookeeper_service_name = module.zookeeper.service_name
+  
+  replicas            = var.kafka_replicas
+  replication_factor  = var.kafka_replication_factor
+  min_isr            = var.kafka_min_isr
+  default_partitions = var.kafka_default_partitions
+  
+  log_retention_hours = var.kafka_log_retention_hours
+  log_segment_bytes   = var.kafka_log_segment_bytes
+  message_max_bytes   = var.kafka_message_max_bytes
+  auto_create_topics  = var.kafka_auto_create_topics
+  
+  storage_class = var.storage_class
+  storage_size  = var.kafka_storage_size
+  
+  enable_external_access = var.kafka_enable_external_access
+  external_node_port     = var.kafka_external_node_port
+  enable_monitoring      = var.enable_monitoring
+  
+  resources = var.resource_limits.kafka
+  
+  depends_on = [module.zookeeper]
+}
+
 # Backend Module
 module "backend" {
   source = "./modules/backend"
@@ -133,9 +164,10 @@ module "backend" {
   min_replicas = var.backend_min_replicas
   max_replicas = var.backend_max_replicas
   
-  database_url = module.postgresql.connection_url
-  redis_url    = module.redis.connection_url
+  database_url  = module.postgresql.connection_url
+  redis_url     = module.redis.connection_url
   zookeeper_url = module.zookeeper.connection_string
+  kafka_url     = module.kafka.kafka_bootstrap_servers
   
   secret_key      = var.django_secret_key
   allowed_hosts   = var.allowed_hosts
@@ -194,6 +226,7 @@ module "celery" {
   database_url  = module.postgresql.connection_url
   redis_url     = module.redis.connection_url
   zookeeper_url = module.zookeeper.connection_string
+  kafka_url     = module.kafka.kafka_bootstrap_servers
   
   secret_key = var.django_secret_key
   
