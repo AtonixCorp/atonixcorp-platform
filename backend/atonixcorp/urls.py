@@ -37,6 +37,7 @@ def api_root(request):
             'resources': '/api/resources/',
             'contact': '/api/contact/',
             'dashboard': '/api/dashboard/',
+            'zookeeper': '/api/zookeeper/',
             'auth': {
                 'login': '/api/auth/login/',
                 'signup': '/api/auth/signup/',
@@ -68,6 +69,9 @@ urlpatterns = [
     path('', include('resources.urls')),
     path('', include('contact.urls')),
     path('api/dashboard/', include('dashboard.urls')),
+    
+    # Zookeeper endpoints
+    path('api/zookeeper/', include('core.zookeeper_urls')),
 ]
 
 # Serve media files during development

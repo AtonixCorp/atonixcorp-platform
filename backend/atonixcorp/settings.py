@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +21,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--&b$452=%e)ip6ud6w(y7sen-i(5su#6f9pingjymv6hf7i%e$'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure--&b$452=%e)ip6ud6w(y7sen-i(5su#6f9pingjymv6hf7i%e$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Environment
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+
+
+# Redis Configuration
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
+# Zookeeper Configuration
+ZOOKEEPER_HOSTS = os.getenv('ZOOKEEPER_HOSTS', 'localhost:2181')
+ZOOKEEPER_ENABLED = os.getenv('ZOOKEEPER_ENABLED', 'true').lower() == 'true'
 
 # Application definition
 
@@ -41,6 +52,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
+    'django_extensions',
+    'core',
     'projects',
     'teams',
     'focus_areas',
@@ -50,15 +63,19 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Add Zookeeper middleware if enabled
+if ZOOKEEPER_ENABLED:
+    MIDDLEWARE.insert(-1, 'core.middleware.ZookeeperMiddleware')
 
 ROOT_URLCONF = 'atonixcorp.urls'
 

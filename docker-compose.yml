@@ -39,6 +39,35 @@ services:
       timeout: 10s
       retries: 3
 
+  # Apache Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: atonixcorp_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 60
+      ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: 3
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: 24
+      ZOOKEEPER_4LW_COMMANDS_WHITELIST: mntr,conf,ruok,stat
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    networks:
+      - atonixcorp_network
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   # Django Backend
   backend:
     build:
@@ -59,12 +88,15 @@ services:
       - DEBUG=False
       - DATABASE_URL=postgresql://atonixcorp_user:atonixcorp_password@db:5432/atonixcorp
       - REDIS_URL=redis://:redis_password@redis:6379/0
+      - ZOOKEEPER_HOSTS=zookeeper:2181
       - SECRET_KEY=your-super-secret-key-change-in-production
       - ALLOWED_HOSTS=localhost,127.0.0.1,backend,nginx
     depends_on:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      zookeeper:
         condition: service_healthy
     networks:
       - atonixcorp_network
@@ -130,11 +162,14 @@ services:
       - DEBUG=False
       - DATABASE_URL=postgresql://atonixcorp_user:atonixcorp_password@db:5432/atonixcorp
       - REDIS_URL=redis://:redis_password@redis:6379/0
+      - ZOOKEEPER_HOSTS=zookeeper:2181
       - SECRET_KEY=your-super-secret-key-change-in-production
     depends_on:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      zookeeper:
         condition: service_healthy
     networks:
       - atonixcorp_network
@@ -152,11 +187,14 @@ services:
       - DEBUG=False
       - DATABASE_URL=postgresql://atonixcorp_user:atonixcorp_password@db:5432/atonixcorp
       - REDIS_URL=redis://:redis_password@redis:6379/0
+      - ZOOKEEPER_HOSTS=zookeeper:2181
       - SECRET_KEY=your-super-secret-key-change-in-production
     depends_on:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      zookeeper:
         condition: service_healthy
     networks:
       - atonixcorp_network
@@ -164,6 +202,8 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  zookeeper_data:
+  zookeeper_logs:
   static_volume:
   media_volume:
 
