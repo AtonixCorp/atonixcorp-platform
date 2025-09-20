@@ -1,299 +1,254 @@
 /**
- * React hooks and utilities for OpenTelemetry
+ * React hooks for telemetry and observability
  */
 
-import { useEffect, useCallback, useRef } from 'react';
-import { trace, context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
-
-// Get tracer instance
-const tracer = trace.getTracer('atonixcorp-frontend', '1.0.0');
+import React, { useEffect, useCallback, useRef } from 'react';
+import { trackEvent, trackPageView, trackUserInteraction, trackApiCall, trackError } from './telemetry';
 
 /**
- * Hook to trace React component lifecycle
+ * Hook to track page views automatically
  */
-export function useTracing(componentName: string, props?: Record<string, any>) {
-  const spanRef = useRef<any>(null);
+export function usePageTracking(pageName?: string) {
+  const pathname = window.location.pathname;
+  
+  useEffect(() => {
+    const finalPageName = pageName || document.title || pathname;
+    trackPageView(finalPageName, pathname);
+  }, [pathname, pageName]);
+}
+
+/**
+ * Hook to track user interactions
+ */
+export function useInteractionTracking() {
+  const trackClick = useCallback((target: string, data?: Record<string, any>) => {
+    trackUserInteraction('click', target, data);
+  }, []);
+
+  const trackSubmit = useCallback((target: string, data?: Record<string, any>) => {
+    trackUserInteraction('submit', target, data);
+  }, []);
+
+  const trackCustom = useCallback((action: string, target: string, data?: Record<string, any>) => {
+    trackUserInteraction(action, target, data);
+  }, []);
+
+  return { trackClick, trackSubmit, trackCustom };
+}
+
+/**
+ * Hook to track API calls with performance metrics
+ */
+export function useApiTracking() {
+  const trackApi = useCallback((promise: Promise<any>, method: string, url: string) => {
+    const startTime = Date.now();
+    
+    return promise
+      .then((result) => {
+        const duration = Date.now() - startTime;
+        trackApiCall(method, url, 200, duration);
+        return result;
+      })
+      .catch((error) => {
+        const duration = Date.now() - startTime;
+        const status = error?.response?.status || 500;
+        trackApiCall(method, url, status, duration);
+        throw error;
+      });
+  }, []);
+
+  return { trackApi };
+}
+
+/**
+ * Hook to track component performance
+ */
+export function usePerformanceTracking(componentName: string) {
+  const renderStartTime = useRef<number>(Date.now());
+  const mountTime = useRef<number | null>(null);
 
   useEffect(() => {
-    // Start span on component mount
-    spanRef.current = tracer.startSpan(`Component.${componentName}.mount`, {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'component.name': componentName,
-        'component.type': 'react',
-        'component.lifecycle': 'mount',
-        ...props,
-      },
+    // Track mount time
+    mountTime.current = Date.now();
+    const mountDuration = mountTime.current - renderStartTime.current;
+    
+    trackEvent('component-mount', {
+      componentName,
+      mountDuration,
+      timestamp: mountTime.current,
     });
 
-    // Add component props as attributes (filter sensitive data)
-    if (props) {
-      Object.entries(props).forEach(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-          spanRef.current?.setAttributes({ [`component.props.${key}`]: value });
-        }
-      });
-    }
-
+    // Track unmount
     return () => {
-      // End span on component unmount
-      if (spanRef.current) {
-        spanRef.current.setAttributes({
-          'component.lifecycle': 'unmount',
+      if (mountTime.current) {
+        const unmountTime = Date.now();
+        const totalLifetime = unmountTime - mountTime.current;
+        
+        trackEvent('component-unmount', {
+          componentName,
+          totalLifetime,
+          timestamp: unmountTime,
         });
-        spanRef.current.setStatus({ code: SpanStatusCode.OK });
-        spanRef.current.end();
       }
     };
   }, [componentName]);
 
-  return {
-    addEvent: useCallback((name: string, attributes?: Record<string, any>) => {
-      spanRef.current?.addEvent(name, attributes);
-    }, []),
+  const trackRender = useCallback((renderData?: Record<string, any>) => {
+    const renderTime = Date.now();
+    const renderDuration = renderTime - renderStartTime.current;
     
-    setAttributes: useCallback((attributes: Record<string, any>) => {
-      spanRef.current?.setAttributes(attributes);
-    }, []),
+    trackEvent('component-render', {
+      componentName,
+      renderDuration,
+      timestamp: renderTime,
+      ...renderData,
+    });
     
-    recordException: useCallback((error: Error) => {
-      spanRef.current?.recordException(error);
-      spanRef.current?.setStatus({ 
-        code: SpanStatusCode.ERROR, 
-        message: error.message 
-      });
-    }, []),
-  };
+    renderStartTime.current = renderTime;
+  }, [componentName]);
+
+  return { trackRender };
 }
 
 /**
- * Hook to trace API calls
+ * Hook to track errors with context
  */
-export function useApiTracing() {
-  return useCallback(async <T>(
-    operationName: string,
-    apiCall: () => Promise<T>,
-    attributes?: Record<string, any>
-  ): Promise<T> => {
-    const span = tracer.startSpan(`API.${operationName}`, {
-      kind: SpanKind.CLIENT,
-      attributes: {
-        'api.operation': operationName,
-        'api.type': 'http',
-        ...attributes,
-      },
-    });
-
-    return context.with(trace.setSpan(context.active(), span), async () => {
-      try {
-        const result = await apiCall();
-        span.setStatus({ code: SpanStatusCode.OK });
-        return result;
-      } catch (error) {
-        span.recordException(error as Error);
-        span.setStatus({ 
-          code: SpanStatusCode.ERROR, 
-          message: (error as Error).message 
-        });
-        throw error;
-      } finally {
-        span.end();
-      }
+export function useErrorTracking() {
+  const trackComponentError = useCallback((error: Error, componentName: string, props?: Record<string, any>) => {
+    trackError(error, `component-${componentName}`);
+    trackEvent('component-error', {
+      componentName,
+      errorMessage: error.message,
+      errorStack: error.stack,
+      props: props ? JSON.stringify(props) : undefined,
     });
   }, []);
-}
 
-/**
- * Hook to trace user interactions
- */
-export function useUserInteractionTracing() {
-  return useCallback((
-    interactionType: string,
-    target: string,
-    additionalAttributes?: Record<string, any>
-  ) => {
-    const span = tracer.startSpan(`Interaction.${interactionType}`, {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'user.interaction.type': interactionType,
-        'user.interaction.target': target,
-        'user.interaction.timestamp': Date.now(),
-        ...additionalAttributes,
-      },
+  const trackAsyncError = useCallback((error: Error, operation: string, context?: Record<string, any>) => {
+    trackError(error, `async-${operation}`);
+    trackEvent('async-error', {
+      operation,
+      errorMessage: error.message,
+      errorStack: error.stack,
+      context: context ? JSON.stringify(context) : undefined,
     });
-
-    // End span immediately for user interactions
-    span.setStatus({ code: SpanStatusCode.OK });
-    span.end();
   }, []);
-}
 
-/**
- * Hook to track page views
- */
-export function usePageViewTracing(pageName: string, path: string) {
-  useEffect(() => {
-    const span = tracer.startSpan(`PageView.${pageName}`, {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'page.name': pageName,
-        'page.path': path,
-        'page.url': window.location.href,
-        'page.referrer': document.referrer,
-        'page.title': document.title,
-        'browser.viewport.width': window.innerWidth,
-        'browser.viewport.height': window.innerHeight,
-      },
+  const trackUserError = useCallback((error: string, action: string, context?: Record<string, any>) => {
+    trackEvent('user-error', {
+      error,
+      action,
+      context: context ? JSON.stringify(context) : undefined,
     });
+  }, []);
 
-    // Track time on page
-    const startTime = Date.now();
-
-    return () => {
-      const timeOnPage = Date.now() - startTime;
-      span.setAttributes({
-        'page.time_on_page_ms': timeOnPage,
-      });
-      span.setStatus({ code: SpanStatusCode.OK });
-      span.end();
-    };
-  }, [pageName, path]);
+  return { trackComponentError, trackAsyncError, trackUserError };
 }
 
 /**
- * Hook to track form submissions
+ * Higher-order component to add automatic tracking to components
  */
-export function useFormTracing(formName: string) {
-  return useCallback((
-    action: 'start' | 'submit' | 'error' | 'success',
-    formData?: Record<string, any>,
-    error?: Error
-  ) => {
-    const span = tracer.startSpan(`Form.${formName}.${action}`, {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'form.name': formName,
-        'form.action': action,
-        'form.field_count': formData ? Object.keys(formData).length : 0,
-      },
-    });
-
-    // Add non-sensitive form field names
-    if (formData && action === 'submit') {
-      const fieldNames = Object.keys(formData).filter(
-        key => !key.toLowerCase().includes('password') && 
-               !key.toLowerCase().includes('token') &&
-               !key.toLowerCase().includes('secret')
-      );
-      span.setAttributes({
-        'form.fields': fieldNames.join(','),
-      });
-    }
-
-    if (error) {
-      span.recordException(error);
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-    } else {
-      span.setStatus({ code: SpanStatusCode.OK });
-    }
-
-    span.end();
-  }, [formName]);
-}
-
-/**
- * Higher-order component to trace React components
- */
-export function withTracing<P extends object>(
+export function withTelemetry<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   componentName?: string
 ) {
-  const TracedComponent = (props: P) => {
-    const name = componentName || WrappedComponent.displayName || WrappedComponent.name;
-    const { addEvent, setAttributes, recordException } = useTracing(name, props);
+  const displayName = componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  
+  const TelemetryWrappedComponent: React.FC<P> = (props) => {
+    const { trackRender } = usePerformanceTracking(displayName);
+    const { trackComponentError } = useErrorTracking();
 
-    try {
-      return <WrappedComponent {...props} />;
-    } catch (error) {
-      recordException(error as Error);
-      throw error;
-    }
+    useEffect(() => {
+      trackRender();
+    });
+
+    // Error boundary effect
+    useEffect(() => {
+      const handleError = (event: ErrorEvent) => {
+        if (event.filename?.includes(displayName)) {
+          trackComponentError(event.error, displayName, props as any);
+        }
+      };
+
+      window.addEventListener('error', handleError);
+      return () => window.removeEventListener('error', handleError);
+    }, [props, trackComponentError]);
+
+    return React.createElement(WrappedComponent, props);
   };
 
-  TracedComponent.displayName = `withTracing(${WrappedComponent.displayName || WrappedComponent.name})`;
-  return TracedComponent;
+  TelemetryWrappedComponent.displayName = `withTelemetry(${displayName})`;
+  
+  return TelemetryWrappedComponent;
 }
 
 /**
- * Utility function to manually create spans
+ * React Error Boundary with telemetry
  */
-export function createSpan(
-  name: string,
-  attributes?: Record<string, any>,
-  kind: SpanKind = SpanKind.INTERNAL
-) {
-  return tracer.startSpan(name, {
-    kind,
-    attributes,
-  });
+interface TelemetryErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+  errorInfo?: React.ErrorInfo;
 }
 
-/**
- * Utility function to get current trace context
- */
-export function getCurrentTraceContext() {
-  const activeSpan = trace.getActiveSpan();
-  if (activeSpan) {
-    const spanContext = activeSpan.spanContext();
-    return {
-      traceId: spanContext.traceId,
-      spanId: spanContext.spanId,
-      traceFlags: spanContext.traceFlags,
-    };
-  }
-  return null;
+interface TelemetryErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ComponentType<{ error?: Error; errorInfo?: React.ErrorInfo }>;
+  componentName?: string;
 }
 
-/**
- * Custom error boundary with tracing
- */
-export class TracingErrorBoundary extends React.Component<
-  React.PropsWithChildren<{ fallback?: React.ComponentType<{ error: Error }> }>,
-  { hasError: boolean; error?: Error }
+export class TelemetryErrorBoundary extends React.Component<
+  TelemetryErrorBoundaryProps,
+  TelemetryErrorBoundaryState
 > {
-  constructor(props: React.PropsWithChildren<{ fallback?: React.ComponentType<{ error: Error }> }>) {
+  constructor(props: TelemetryErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): TelemetryErrorBoundaryState {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Trace the error
-    const span = tracer.startSpan('Error.React.ComponentError', {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'error.type': error.name,
-        'error.message': error.message,
-        'error.stack': error.stack || '',
-        'error.component_stack': errorInfo.componentStack,
-      },
+    const componentName = this.props.componentName || 'ErrorBoundary';
+    
+    trackError(error, `error-boundary-${componentName}`);
+    trackEvent('error-boundary-catch', {
+      componentName,
+      errorMessage: error.message,
+      errorStack: error.stack,
+      componentStack: errorInfo.componentStack,
     });
 
-    span.recordException(error);
-    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-    span.end();
+    this.setState({ error, errorInfo });
   }
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        const FallbackComponent = this.props.fallback;
-        return <FallbackComponent error={this.state.error!} />;
+      const FallbackComponent = this.props.fallback;
+      
+      if (FallbackComponent) {
+        return React.createElement(FallbackComponent, {
+          error: this.state.error,
+          errorInfo: this.state.errorInfo,
+        });
       }
-      return <div>Something went wrong.</div>;
+
+      return (
+        <div style={{ padding: '20px', border: '1px solid #red', borderRadius: '4px' }}>
+          <h2>Something went wrong</h2>
+          <p>An error occurred in this component. Please try refreshing the page.</p>
+          {process.env.NODE_ENV === 'development' && this.state.error && (
+            <details style={{ marginTop: '10px' }}>
+              <summary>Error details (development only)</summary>
+              <pre style={{ fontSize: '12px', overflow: 'auto' }}>
+                {this.state.error.stack}
+              </pre>
+            </details>
+          )}
+        </div>
+      );
     }
 
     return this.props.children;

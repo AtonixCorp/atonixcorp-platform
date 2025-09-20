@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -10,6 +10,10 @@ import Footer from './components/Layout/Footer';
 
 // Context
 import { AuthProvider } from './contexts/AuthContext';
+
+// Observability
+import { initializeOpenTelemetry } from './observability/telemetry';
+import { TelemetryErrorBoundary } from './observability/hooks';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -89,31 +93,38 @@ const theme = createTheme({
 });
 
 function App() {
+  useEffect(() => {
+    // Initialize telemetry on app startup
+    initializeOpenTelemetry();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
-        <Router>
-          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
-            <Box component="main" sx={{ flex: 1 }}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/projects" element={<ProjectsPage />} />
-                <Route path="/projects/:slug" element={<ProjectDetailPage />} />
-                <Route path="/teams" element={<TeamsPage />} />
-                <Route path="/teams/:slug" element={<TeamDetailPage />} />
-                <Route path="/focus-areas" element={<FocusAreasPage />} />
-                <Route path="/focus-areas/:slug" element={<FocusAreaDetailPage />} />
-                <Route path="/resources" element={<ResourcesPage />} />
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-              </Routes>
+      <TelemetryErrorBoundary componentName="App">
+        <AuthProvider>
+          <Router>
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              <Header />
+              <Box component="main" sx={{ flex: 1 }}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/projects" element={<ProjectsPage />} />
+                  <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+                  <Route path="/teams" element={<TeamsPage />} />
+                  <Route path="/teams/:slug" element={<TeamDetailPage />} />
+                  <Route path="/focus-areas" element={<FocusAreasPage />} />
+                  <Route path="/focus-areas/:slug" element={<FocusAreaDetailPage />} />
+                  <Route path="/resources" element={<ResourcesPage />} />
+                  <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                </Routes>
+              </Box>
+              <Footer />
             </Box>
-            <Footer />
-          </Box>
-        </Router>
-      </AuthProvider>
+          </Router>
+        </AuthProvider>
+      </TelemetryErrorBoundary>
     </ThemeProvider>
   );
 }
