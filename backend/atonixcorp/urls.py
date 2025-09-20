@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .auth_views import LoginView, SignupView, LogoutView, MeView
-from .health import HealthCheckView
+from core.health import health_check
 
 
 @api_view(['GET'])
@@ -54,7 +54,7 @@ urlpatterns = [
     path('api/', api_root, name='api-root'),
     
     # Health check endpoint
-    path('api/health/', HealthCheckView.as_view(), name='health-check'),
+    path('health/', health_check, name='health-check'),
     
     # Authentication endpoints
     path('api/auth/login/', LoginView.as_view(), name='login'),

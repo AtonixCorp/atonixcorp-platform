@@ -1,0 +1,57 @@
+# Simple Dockerfile for AtonixCorp Platform (Pre-built Frontend)
+# Use this if you want to build frontend separately
+
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    nginx \
+    supervisor \
+    curl \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user
+RUN useradd --create-home --shell /bin/bash app
+
+# Set work directory
+WORKDIR /app
+
+# Install Python dependencies
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source code
+COPY backend/ ./
+
+# Copy pre-built frontend (you need to build it first with 'npm run build')
+COPY frontend/build/ ./static/
+
+# Create necessary directories
+RUN mkdir -p /var/log/supervisor /app/logs /app/static /app/media
+
+# Copy configuration files
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/start.sh /app/start.sh
+
+# Set permissions
+RUN chown -R app:app /app && \
+    chmod +x /app/start.sh && \
+    rm /etc/nginx/sites-enabled/default
+
+# Expose ports
+EXPOSE 80 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:80/health/ || exit 1
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV DJANGO_SETTINGS_MODULE=atonixcorp.settings
+ENV PYTHONUNBUFFERED=1
+
+# Start command
+CMD ["/app/start.sh"]
