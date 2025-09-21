@@ -20,16 +20,10 @@ terraform {
 
 # Provider Configuration
 provider "kubernetes" {
-  host                   = var.kubernetes_host
-  token                  = var.kubernetes_token
-  cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca_certificate)
-}
-
-# Data Sources
-data "kubernetes_namespace" "default" {
-  metadata {
-    name = "default"
-  }
+  host                   = var.kubernetes_host != "" ? var.kubernetes_host : null
+  token                  = var.kubernetes_token != "" ? var.kubernetes_token : null
+  cluster_ca_certificate = var.kubernetes_cluster_ca_certificate != "" ? base64decode(var.kubernetes_cluster_ca_certificate) : null
+  config_path            = var.kubernetes_host == "" ? var.kubeconfig_path : null
 }
 
 # Local Values
