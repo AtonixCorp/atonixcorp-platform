@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { config } from '../config/environment';
 import {
   Project,
   Team,
@@ -15,11 +16,13 @@ import {
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: '/api',
-  timeout: 10000,
+  baseURL: config.API_BASE_URL,
+  timeout: config.API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
+  // Enable credentials for CORS in production
+  withCredentials: config.ENVIRONMENT === 'production',
 });
 
 // Request interceptor for adding auth token

@@ -2,9 +2,15 @@
 
 ## 📦 Main Production Image
 
-**Image to push to production:** `atonixcorp-platform:latest`
+**Image to push to production:** `atonixcorp-platform:latest` or `quay.io/atonixdev/atonixcorp-platform:latest`
 
 This is your **unified container** that contains both backend and frontend in a single deployable unit.
+
+## 🌐 Production Domains
+
+- **Frontend**: `https://atonixcorp.org` - Serves the React application
+- **Backend API**: `https://api.atonixcorp.org` - Serves the Django REST API  
+- **Admin Interface**: `https://api.atonixcorp.org/admin/` - Django admin panel
 
 ## 🏗️ Architecture Overview
 

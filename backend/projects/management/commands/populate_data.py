@@ -79,7 +79,7 @@ class Command(BaseCommand):
                 'name': 'Cloud Infrastructure Team',
                 'slug': 'cloud-infrastructure',
                 'mission': 'Experts in cloud architecture, DevOps, and scalable infrastructure solutions.',
-                'description': 'Our Cloud Infrastructure Team specializes in designing and implementing robust, scalable cloud solutions. With expertise across AWS, Azure, and Google Cloud Platform, we help organizations modernize their infrastructure and achieve optimal performance and cost efficiency.',
+                'description': 'Our Cloud Infrastructure Team specializes in designing and implementing robust, scalable cloud solutions. With expertise across Google Cloud Platform, Microsoft Azure, and self-hosted solutions, we help organizations modernize their infrastructure and achieve optimal performance and cost efficiency.',
                 'is_active': True,
                 'color_theme': '#2196F3',
             },
@@ -145,7 +145,7 @@ class Command(BaseCommand):
         # Create technologies
         cloud_area = FocusArea.objects.get(slug='cloud-computing')
         technologies_data = [
-            {'focus_area': cloud_area, 'name': 'AWS', 'description': 'Amazon Web Services cloud platform'},
+            {'focus_area': cloud_area, 'name': 'Google Cloud Platform', 'description': 'Google Cloud services and infrastructure'},
             {'focus_area': cloud_area, 'name': 'Azure', 'description': 'Microsoft Azure cloud platform'},
             {'focus_area': cloud_area, 'name': 'Google Cloud', 'description': 'Google Cloud Platform'},
             {'focus_area': cloud_area, 'name': 'Docker', 'description': 'Containerization platform'},

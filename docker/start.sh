@@ -2,20 +2,44 @@
 set -e
 
 echo "Starting AtonixCorp Platform..."
+echo "Environment: ${ENVIRONMENT:-development}"
 
-# Wait for database to be ready
-echo "Waiting for database..."
-while ! nc -z ${DATABASE_HOST:-db} ${DATABASE_PORT:-5432}; do
-  sleep 1
-done
-echo "Database is ready!"
+# Configure nginx based on environment
+if [ "${ENVIRONMENT}" = "production" ]; then
+    echo "Setting up production nginx configuration..."
+    ln -sf /etc/nginx/sites-available/production /etc/nginx/sites-enabled/default
+    
+    # Verify SSL certificates exist
+    if [ ! -f "/etc/ssl/certs/atonixcorp.org.crt" ] || [ ! -f "/etc/ssl/private/atonixcorp.org.key" ]; then
+        echo "WARNING: Production SSL certificates not found. Nginx may not start properly."
+        echo "Please ensure SSL certificates are mounted in the container."
+    fi
+else
+    echo "Setting up development nginx configuration..."
+    ln -sf /etc/nginx/sites-available/development /etc/nginx/sites-enabled/default
+fi
 
-# Wait for Redis to be ready
-echo "Waiting for Redis..."
-while ! nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
-  sleep 1
-done
-echo "Redis is ready!"
+# Wait for database to be ready (only if not using SQLite)
+if [[ "${DATABASE_URL}" != *"sqlite"* ]]; then
+  echo "Waiting for database..."
+  while ! nc -z ${DATABASE_HOST:-db} ${DATABASE_PORT:-5432}; do
+    sleep 1
+  done
+  echo "Database is ready!"
+else
+  echo "Using SQLite database - no wait needed"
+fi
+
+# Wait for Redis to be ready (only if Redis host is set)
+if [ ! -z "$REDIS_HOST" ]; then
+  echo "Waiting for Redis..."
+  while ! nc -z ${REDIS_HOST} ${REDIS_PORT:-6379}; do
+    sleep 1
+  done
+  echo "Redis is ready!"
+else
+  echo "Redis not configured - skipping Redis wait"
+fi
 
 # Wait for Zookeeper to be ready (optional)
 if [ ! -z "$ZOOKEEPER_HOSTS" ]; then
@@ -40,10 +64,10 @@ if [ ! -z "$KAFKA_BOOTSTRAP_SERVERS" ]; then
 fi
 
 # Create required directories
-mkdir -p /app/logs /app/static /app/media
+mkdir -p /app/logs /app/static /app/media /app/staticfiles
 
 # Set proper permissions
-chown -R app:app /app/logs /app/static /app/media
+chown -R app:app /app/logs /app/static /app/media /app/staticfiles
 
 echo "Starting supervisor..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

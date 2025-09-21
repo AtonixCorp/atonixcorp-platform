@@ -26,10 +26,14 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure--&b$452=%e)ip6ud6w(y7sen-i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,atonixcorp.org,api.atonixcorp.org').split(',')
 
 # Environment
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+
+# Production domain settings
+FRONTEND_DOMAIN = os.getenv('FRONTEND_DOMAIN', 'https://atonixcorp.org')
+API_DOMAIN = os.getenv('API_DOMAIN', 'https://api.atonixcorp.org')
 
 
 # Redis Configuration
@@ -211,6 +215,15 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://atonixcorp.org",
+    "https://www.atonixcorp.org",
+    "http://atonixcorp.org",  # Allow HTTP for development
+    "http://www.atonixcorp.org",
+]
+
+# Additional CORS settings for production
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://\w+\.atonixcorp\.org$",  # Allow subdomains
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -275,7 +288,8 @@ SECURE_HSTS_SECONDS = 31536000  # 1 year
 X_FRAME_OPTIONS = 'DENY'
 
 # HTTPS settings
-if env.bool('USE_HTTPS', default=False):
+USE_HTTPS = env.bool('USE_HTTPS', default=ENVIRONMENT == 'production')
+if USE_HTTPS:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
@@ -294,8 +308,14 @@ CSRF_USE_SESSIONS = True
 
 # Update CORS settings
 CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=False)
-cors_origins = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:3000', 'http://127.0.0.1:3000'])
-CORS_ALLOWED_ORIGINS = cors_origins
+cors_origins = env.list('CORS_ALLOWED_ORIGINS', default=[
+    'http://localhost:3000', 
+    'http://127.0.0.1:3000',
+    'https://atonixcorp.org',
+    'https://www.atonixcorp.org'
+])
+if cors_origins:
+    CORS_ALLOWED_ORIGINS.extend(cors_origins)
 
 # File upload security
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB

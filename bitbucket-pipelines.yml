@@ -72,7 +72,7 @@ definitions:
 
     - step: &build-backend
         name: Build Backend Image
-        image: atlassian/pipelines-awscli
+        image: docker:latest
         services:
           - docker
         script:
@@ -89,7 +89,7 @@ definitions:
 
     - step: &build-frontend
         name: Build Frontend Image
-        image: atlassian/pipelines-awscli
+        image: docker:latest
         services:
           - docker
         script:
@@ -120,29 +120,7 @@ definitions:
           - kubectl rollout status deployment/backend -n atonixcorp${NAMESPACE_SUFFIX}
           - kubectl rollout status deployment/frontend -n atonixcorp${NAMESPACE_SUFFIX}
 
-    - step: &terraform-plan
-        name: Terraform Plan
-        image: hashicorp/terraform:1.5
-        script:
-          - cd terraform/aws
-          - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-          - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-          - terraform init
-          - terraform plan -out=tfplan
-          - terraform show -no-color tfplan > plan.txt
-        artifacts:
-          - terraform/aws/plan.txt
-          - terraform/aws/tfplan
-
-    - step: &terraform-apply
-        name: Terraform Apply
-        image: hashicorp/terraform:1.5
-        script:
-          - cd terraform/aws
-          - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-          - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-          - terraform init
-          - terraform apply -auto-approve tfplan
+    # Removed AWS Terraform steps - no longer using AWS infrastructure
 
 pipelines:
   # Feature branch pipeline
@@ -206,10 +184,13 @@ pipelines:
             - curl -f https://atonixcorp.com/ || exit 1
             - echo "✅ Deployment successful and smoke tests passed"
 
-  # Infrastructure pipeline
+  # Infrastructure pipeline (Kubernetes only - no AWS Terraform)
   branches:
     infrastructure/*:
-      - step: *terraform-plan
+      # Use Kubernetes manifests instead of Terraform for infrastructure
+      - step:
+          name: Deploy Infrastructure to Kubernetes
+          <<: *deploy-to-k8s
 
   # Manual deployment pipelines
   custom:
@@ -232,25 +213,8 @@ pipelines:
             ENVIRONMENT: staging
             NAMESPACE_SUFFIX: -staging
 
-    terraform-apply:
-      - step: *terraform-plan
-      - step:
-          <<: *terraform-apply
-          deployment: production
-          trigger: manual
-
-    terraform-destroy:
-      - step:
-          name: Terraform Destroy
-          image: hashicorp/terraform:1.5
-          script:
-            - cd terraform/aws
-            - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-            - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-            - terraform init
-            - terraform destroy -auto-approve
-          deployment: production
-          trigger: manual
+    # Removed terraform-apply and terraform-destroy pipelines
+    # Infrastructure is now managed through Kubernetes manifests
 
   # Pull request pipeline
   pull-requests:
