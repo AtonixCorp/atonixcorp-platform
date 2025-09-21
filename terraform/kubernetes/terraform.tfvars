@@ -22,10 +22,10 @@ database_name = "atonixcorp"
 database_username = "atonixcorp"
 
 # Image Configuration
-image_registry = "quay.io/atonixdev"
-backend_image_repository = "atonixapi"
+image_registry = "docker.io"
+backend_image_repository = "nginx"
 backend_image_tag = "latest"
-frontend_image_repository = "atonixfont"
+frontend_image_repository = "nginx"
 frontend_image_tag = "latest"
 
 # Scaling Configuration (single node - keep low)
