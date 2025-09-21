@@ -278,7 +278,7 @@ resource "kubernetes_deployment" "zookeeper" {
           
           volume_mount {
             name       = "zookeeper-config"
-            mount_path = "/etc/kafka"
+            mount_path = "/etc/zookeeper"
           }
           
           resources {
