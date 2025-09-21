@@ -74,6 +74,8 @@ module "postgresql" {
   storage_class = var.storage_class
   storage_size  = var.postgresql_storage_size
   
+  enable_monitoring = var.enable_monitoring
+  
   labels      = local.common_labels
   annotations = local.annotations
 }
@@ -87,6 +89,8 @@ module "redis" {
   
   storage_class = var.storage_class
   storage_size  = var.redis_storage_size
+  
+  enable_monitoring = var.enable_monitoring
   
   labels      = local.common_labels
   annotations = local.annotations
@@ -144,7 +148,16 @@ module "kafka" {
   external_node_port     = var.kafka_external_node_port
   enable_monitoring      = var.enable_monitoring
   
-  resources = var.resource_limits.kafka
+  resources = {
+    requests = {
+      cpu    = var.resource_limits.kafka.cpu_request
+      memory = var.resource_limits.kafka.memory_request
+    }
+    limits = {
+      cpu    = var.resource_limits.kafka.cpu_limit
+      memory = var.resource_limits.kafka.memory_limit
+    }
+  }
   
   depends_on = [module.zookeeper]
 }
@@ -167,7 +180,6 @@ module "backend" {
   database_url  = module.postgresql.connection_url
   redis_url     = module.redis.connection_url
   zookeeper_url = module.zookeeper.connection_string
-  kafka_url     = module.kafka.kafka_bootstrap_servers
   
   secret_key      = var.django_secret_key
   allowed_hosts   = var.allowed_hosts
@@ -175,6 +187,9 @@ module "backend" {
   
   storage_class = var.storage_class
   media_size    = var.media_storage_size
+  
+  resource_limits = var.resource_limits.backend
+  environment     = var.environment
   
   labels      = local.common_labels
   annotations = local.annotations
@@ -226,9 +241,10 @@ module "celery" {
   database_url  = module.postgresql.connection_url
   redis_url     = module.redis.connection_url
   zookeeper_url = module.zookeeper.connection_string
-  kafka_url     = module.kafka.kafka_bootstrap_servers
   
   secret_key = var.django_secret_key
+  
+  resource_limits = var.resource_limits.celery
   
   labels      = local.common_labels
   annotations = local.annotations

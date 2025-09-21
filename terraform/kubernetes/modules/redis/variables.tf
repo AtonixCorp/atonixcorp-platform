@@ -65,3 +65,9 @@ variable "enable_persistence" {
   type        = bool
   default     = true
 }
+
+variable "enable_monitoring" {
+  description = "Enable Redis monitoring and ServiceMonitor"
+  type        = bool
+  default     = false
+}

@@ -320,6 +320,7 @@ resource "kubernetes_service" "redis" {
 
 # ServiceMonitor for Prometheus (if monitoring is enabled)
 resource "kubernetes_manifest" "redis_servicemonitor" {
+  count = var.enable_monitoring ? 1 : 0
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
     kind       = "ServiceMonitor"

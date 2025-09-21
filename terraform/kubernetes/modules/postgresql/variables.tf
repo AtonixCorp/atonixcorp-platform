@@ -56,6 +56,12 @@ variable "backup_enabled" {
   default     = true
 }
 
+variable "enable_monitoring" {
+  description = "Enable PostgreSQL monitoring and ServiceMonitor"
+  type        = bool
+  default     = false
+}
+
 variable "resource_limits" {
   description = "Resource limits for PostgreSQL"
   type = object({

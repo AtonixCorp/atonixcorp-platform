@@ -349,7 +349,7 @@ resource "kubernetes_service" "postgresql" {
 
 # ServiceMonitor for Prometheus (if monitoring is enabled)
 resource "kubernetes_manifest" "postgresql_servicemonitor" {
-  count = var.backup_enabled ? 1 : 0
+  count = var.enable_monitoring && var.backup_enabled ? 1 : 0
   
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
