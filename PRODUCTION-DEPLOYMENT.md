@@ -4,8 +4,6 @@
 
 **Image to push to production:** `atonixcorp-platform:latest` or `quay.io/atonixdev/atonixcorp-platform:latest`
 
-This is your **unified container** that contains both backend and frontend in a single deployable unit.
-
 ## 🌐 Production Domains
 
 - **Frontend**: `https://atonixcorp.org` - Serves the React application
