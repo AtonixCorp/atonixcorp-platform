@@ -296,7 +296,7 @@ resource "kubernetes_deployment" "zookeeper" {
             exec {
               command = [
                 "sh", "-c",
-                "echo ruok | nc localhost ${var.client_port} | grep imok"
+                "echo srvr | nc localhost ${var.client_port} | grep -q Zookeeper"
               ]
             }
             initial_delay_seconds = 30
@@ -309,7 +309,7 @@ resource "kubernetes_deployment" "zookeeper" {
             exec {
               command = [
                 "sh", "-c",
-                "echo ruok | nc localhost ${var.client_port} | grep imok"
+                "echo srvr | nc localhost ${var.client_port} | grep -q Zookeeper"
               ]
             }
             initial_delay_seconds = 10
@@ -322,7 +322,7 @@ resource "kubernetes_deployment" "zookeeper" {
             exec {
               command = [
                 "sh", "-c",
-                "echo ruok | nc localhost ${var.client_port} | grep imok"
+                "echo srvr | nc localhost ${var.client_port} | grep -q Zookeeper"
               ]
             }
             initial_delay_seconds = 15
