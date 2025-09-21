@@ -8,6 +8,26 @@ variable "kubeconfig_path" {
   default     = "~/.kube/config"
 }
 
+variable "kubernetes_host" {
+  description = "Kubernetes cluster host URL"
+  type        = string
+  default     = ""
+}
+
+variable "kubernetes_token" {
+  description = "Kubernetes service account token"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "kubernetes_cluster_ca_certificate" {
+  description = "Kubernetes cluster CA certificate (base64 encoded)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "project_name" {
   description = "Name of the project"
   type        = string

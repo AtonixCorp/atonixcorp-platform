@@ -2,23 +2,27 @@
 terraform {
   required_version = ">= 1.0"
   
+  cloud {
+    organization = "AtonixCorp-Platform"
+
+    workspaces {
+      name = "atonixcorp-developers"
+    }
+  }
+  
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.20"
     }
   }
-
-  backend "kubernetes" {
-    secret_suffix    = "terraform-state"
-    config_path      = "~/.kube/config"
-    namespace        = "terraform"
-  }
 }
 
 # Provider Configuration
 provider "kubernetes" {
-  config_path = var.kubeconfig_path
+  host                   = var.kubernetes_host
+  token                  = var.kubernetes_token
+  cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca_certificate)
 }
 
 # Data Sources
