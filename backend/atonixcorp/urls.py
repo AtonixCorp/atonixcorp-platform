@@ -25,9 +25,10 @@ from drf_spectacular.utils import extend_schema
 from .auth_views import LoginView, SignupView, LogoutView, MeView
 from core.health import health_check
 from core.api_utils import APIRootSerializer
+from core.views import landing_page, api_info
 
 # Import custom admin
-from core.admin import admin_site
+# from core.admin import admin_site  # Temporarily disabled
 
 
 @extend_schema(
@@ -113,8 +114,11 @@ def api_root(request):
 
 
 urlpatterns = [
+    # Landing Page - Professional welcome page
+    path('', landing_page, name='landing-page'),
+    
     # Professional Admin interface
-    path('admin/', admin_site.urls),
+    path('admin/', admin.site.urls),
     
     # API Documentation - Professional Swagger UI and ReDoc
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -123,6 +127,9 @@ urlpatterns = [
     
     # API Root - Welcome endpoint with full API overview
     path('api/', api_root, name='api-root'),
+    
+    # API Information endpoint
+    path('api/info/', api_info, name='api-info'),
     
     # Health check endpoints
     path('api/health/', health_check, name='api-health-check'),
@@ -143,7 +150,7 @@ urlpatterns = [
     path('api/dashboard/', include('dashboard.urls')),
     
     # System and monitoring endpoints
-    path('api/zookeeper/', include('core.zookeeper_urls')),
+    # path('api/zookeeper/', include('core.zookeeper_urls')),  # Temporarily disabled
 ]
 
 # Serve media files during development
