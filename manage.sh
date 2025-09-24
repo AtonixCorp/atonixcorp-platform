@@ -9,8 +9,11 @@ PROJECT_DIR="/home/atonixdev/atonixcorp-platform"
 cd $PROJECT_DIR
 
 # Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
+RED='\033[0;3    echo -e "${BLUE}[TEST] Running tests...${NC}"
+    docker compose exec backend python manage.py test
+    echo -e "${GREEN}[OK] Tests completed${NC}"
+GRE    echo -e "${YELLOW}[CLEANUP] Cleaning up containers and volumes...${NC}"
+    echo -e "${RED}[WARNING] This will remove all containers, images, and volumes. Continue? (y/N)${NC}"='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
@@ -56,7 +59,7 @@ start_services() {
         docker-compose up -d
     fi
     
-    echo -e "${GREEN}✅ Platform started successfully!${NC}"
+    echo -e "${GREEN}[OK] Platform started successfully!${NC}"
     show_access_info
 }
 
@@ -64,61 +67,108 @@ start_services() {
 stop_services() {
     echo -e "${YELLOW}🛑 Stopping AtonixCorp Platform...${NC}"
     docker-compose down
-    echo -e "${GREEN}✅ Platform stopped successfully!${NC}"
+    echo -e "${GREEN}[OK] Platform stopped successfully!${NC}"
 }
 
 # Function to restart services
 restart_services() {
     local env=${1:-dev}
-    echo -e "${BLUE}🔄 Restarting AtonixCorp Platform...${NC}"
-    stop_services
-    start_services $env
+    echo -e "${BLUE}[RESTART] Restarting AtonixCorp Platform...${NC}"
+    stop_platform
+    sleep 3
+    start_platform
 }
+
+# Function to get service status
+get_status() {
+    echo -e "${BLUE}[STATUS] Service Status:${NC}"
+    
+    # Check backend health
+    if curl -f -s http://localhost:8000/api/health/ > /dev/null 2>&1; then
+        echo -e "Backend: ${GREEN}[OK] Healthy${NC}"
+    else
+        echo -e "Backend: ${RED}[ERROR] Unhealthy${NC}"
+    fi
+    
+    # Check frontend health
+    if curl -f -s http://localhost:3000 > /dev/null 2>&1; then
+        echo -e "Frontend: ${GREEN}[OK] Healthy${NC}"
+    else
+        echo -e "Frontend: ${RED}[ERROR] Unhealthy${NC}"
+    fi
+    
+    # Check database health
+    if docker compose exec -T db pg_isready -U atonixcorp_user > /dev/null 2>&1; then
+        echo -e "Database: ${GREEN}[OK] Healthy${NC}"
+    else
+        echo -e "Database: ${RED}[ERROR] Unhealthy${NC}"
+    fi
+    
+    # Check redis health
+    if docker compose exec -T redis redis-cli ping > /dev/null 2>&1; then
+        echo -e "Redis: ${GREEN}[OK] Healthy${NC}"
+    else
+        echo -e "Redis: ${RED}[ERROR] Unhealthy${NC}"
+    fi
+}
+
+# Function to show logs
+show_logs() {
+    local service=${1:-all}
+    
+    if [[ "$service" == "all" ]]; then
+        echo -e "${BLUE}[LOGS] Showing logs for all services:${NC}"
+        docker compose logs -f
+    else
+        echo -e "${BLUE}[LOGS] Showing logs for $service:${NC}"
+        case $service in
+            "backend"|"frontend"|"db"|"redis"|"nginx"|"mailhog"|"zookeeper"|"kafka"|"rabbitmq"|"celery")
+                docker compose logs -f "$service"
+                ;;
+            *)
+                echo -e "${RED}[ERROR] Unknown service: $service${NC}"
 
 # Function to show service status
 show_status() {
-    echo -e "${BLUE}📊 Service Status:${NC}"
+    echo -e "${BLUE}[STATUS] Service Status:${NC}"
     docker-compose ps
     echo ""
     echo -e "${BLUE}🏥 Health Checks:${NC}"
     
-    # Check backend health
-    if curl -s http://localhost:8080/api/health/ > /dev/null 2>&1; then
-        echo -e "Backend: ${GREEN}✅ Healthy${NC}"
+    echo -e "Backend: ${GREEN}[OK] Healthy${NC}"
     else
-        echo -e "Backend: ${RED}❌ Unhealthy${NC}"
+        echo -e "Backend: ${RED}[ERROR] Unhealthy${NC}"
     fi
     
-    # Check frontend
-    if curl -s http://localhost:8080/ > /dev/null 2>&1; then
-        echo -e "Frontend: ${GREEN}✅ Healthy${NC}"
+    # Check frontend health
+    if curl -f -s http://localhost:3000 > /dev/null 2>&1; then
+        echo -e "Frontend: ${GREEN}[OK] Healthy${NC}"
     else
-        echo -e "Frontend: ${RED}❌ Unhealthy${NC}"
+        echo -e "Frontend: ${RED}[ERROR] Unhealthy${NC}"
     fi
     
-    # Check database
-    if docker-compose exec -T db pg_isready -U atonixcorp_user > /dev/null 2>&1; then
-        echo -e "Database: ${GREEN}✅ Healthy${NC}"
+    # Check database health
+    if docker compose exec -T db pg_isready -U atonixcorp_user > /dev/null 2>&1; then
+        echo -e "Database: ${GREEN}[OK] Healthy${NC}"
     else
-        echo -e "Database: ${RED}❌ Unhealthy${NC}"
+        echo -e "Database: ${RED}[ERROR] Unhealthy${NC}"
     fi
     
-    # Check Redis
-    if docker-compose exec -T redis redis-cli ping > /dev/null 2>&1; then
-        echo -e "Redis: ${GREEN}✅ Healthy${NC}"
+    # Check redis health
+    if docker compose exec -T redis redis-cli ping > /dev/null 2>&1; then
+        echo -e "Redis: ${GREEN}[OK] Healthy${NC}"
     else
-        echo -e "Redis: ${RED}❌ Unhealthy${NC}"
-    fi
+        echo -e "Redis: ${RED}[ERROR] Unhealthy${NC}"
 }
 
 # Function to show logs
 show_logs() {
     local service=${1:-}
     if [ -z "$service" ]; then
-        echo -e "${BLUE}📋 Showing logs for all services:${NC}"
+        echo -e "${BLUE}[LOGS] Showing logs for all services:${NC}"
         docker-compose logs -f --tail=100
     else
-        echo -e "${BLUE}📋 Showing logs for $service:${NC}"
+        echo -e "${BLUE}[LOGS] Showing logs for $service:${NC}"
         docker-compose logs -f --tail=100 $service
     fi
 }
@@ -142,7 +192,7 @@ access_shell() {
             docker-compose exec redis redis-cli
             ;;
         *)
-            echo -e "${RED}❌ Unknown service: $service${NC}"
+            echo -e "${RED}[ERROR] Unknown service: $service${NC}"
             echo "Available services: backend, frontend, db, redis"
             ;;
     esac
@@ -158,7 +208,7 @@ create_backup() {
     
     docker-compose exec -T db pg_dump -U atonixcorp_user atonixcorp > $backup_file
     
-    echo -e "${GREEN}✅ Backup created: $backup_file${NC}"
+    echo -e "${GREEN}[OK] Backup created: $backup_file${NC}"
 }
 
 # Function to restore database
@@ -166,24 +216,24 @@ restore_backup() {
     local backup_file=$1
     
     if [ -z "$backup_file" ]; then
-        echo -e "${RED}❌ Please specify backup file${NC}"
+        echo -e "${RED}[ERROR] Please specify backup file${NC}"
         echo "Usage: $0 restore path/to/backup.sql"
         return 1
     fi
     
     if [ ! -f "$backup_file" ]; then
-        echo -e "${RED}❌ Backup file not found: $backup_file${NC}"
+        echo -e "${RED}[ERROR] Backup file not found: $backup_file${NC}"
         return 1
     fi
     
-    echo -e "${YELLOW}⚠️  This will replace the current database. Continue? (y/N)${NC}"
+    echo -e "${YELLOW}[WARNING] This will replace the current database. Continue? (y/N)${NC}"
     read -r response
     if [[ ! "$response" =~ ^[Yy]$ ]]; then
         echo "Restore cancelled"
         return 0
     fi
     
-    echo -e "${BLUE}🔄 Restoring database from $backup_file...${NC}"
+    echo -e "${BLUE}[RESTORE] Restoring database from $backup_file...${NC}"
     
     # Drop and recreate database
     docker-compose exec -T db psql -U atonixcorp_user -c "DROP DATABASE IF EXISTS atonixcorp;"
@@ -192,14 +242,14 @@ restore_backup() {
     # Restore from backup
     cat $backup_file | docker-compose exec -T db psql -U atonixcorp_user atonixcorp
     
-    echo -e "${GREEN}✅ Database restored successfully${NC}"
+    echo -e "${GREEN}[OK] Database restored successfully${NC}"
 }
 
 # Function to run migrations
 run_migrations() {
-    echo -e "${BLUE}🗄️  Running database migrations...${NC}"
+    echo -e "${BLUE}[DB] Running database migrations...${NC}"
     docker-compose exec backend python manage.py migrate
-    echo -e "${GREEN}✅ Migrations completed${NC}"
+    echo -e "${GREEN}[OK] Migrations completed${NC}"
 }
 
 # Function to run tests
@@ -221,8 +271,22 @@ cleanup() {
     
     docker-compose down -v --rmi all
     docker system prune -f
-    echo -e "${GREEN}✅ Cleanup completed${NC}"
+    echo -e "${GREEN}[OK] Cleanup completed${NC}"
 }
+
+# Function to build images
+build_images() {
+    echo -e "${BLUE}[BUILD] Building Docker images...${NC}"
+    docker compose build --no-cache
+    echo -e "${GREEN}[OK] Images built successfully${NC}"
+}
+
+# Function to show access information
+show_access() {
+    echo
+    echo -e "${GREEN}[SUCCESS] Platform is running!${NC}"
+    echo
+    echo -e "${BLUE}[ACCESS] Access Points:${NC}"
 
 # Function to build images
 build_images() {

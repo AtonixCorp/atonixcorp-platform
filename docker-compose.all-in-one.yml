@@ -44,7 +44,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: atonixcorp_backend
     command: >
       sh -c "python manage.py migrate &&
@@ -235,7 +235,7 @@ services:
   celery:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: atonixcorp_celery
     command: celery -A atonixcorp worker --loglevel=info
     volumes:

@@ -48,7 +48,7 @@ try:
         if "already exists" in str(e).lower():
             print(f"✓ Topic '{topic_name}' already exists")
         else:
-            print(f"⚠ Topic creation failed: {e}")
+            print(f"[WARNING] Topic creation failed: {e}")
     
     # Test producer
     producer = KafkaProducer(
@@ -78,7 +78,7 @@ try:
     if messages:
         print(f"✓ Received message: {messages[0]}")
     else:
-        print("⚠ No messages received")
+        print("[WARNING] No messages received")
     
     # Test our Django Kafka client
     from core.kafka_client import get_kafka_client

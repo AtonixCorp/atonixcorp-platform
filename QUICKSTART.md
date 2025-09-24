@@ -17,18 +17,18 @@ cd /home/atonixdev/atonixcorp-platform
 open http://localhost:8080
 ```
 
-### 🏗️ Infrastructure Components
+### [BUILD] Infrastructure Components
 
 Your platform now includes:
 
-- **🐳 Docker Infrastructure**: Complete containerization with PostgreSQL, Redis, Nginx
-- **🔧 Backend API**: Django REST API with authentication, caching, and background tasks
+- **[DOCKER] Docker Infrastructure**: Complete containerization with PostgreSQL, Redis, Nginx
+- **[TOOLS] Backend API**: Django REST API with authentication, caching, and background tasks
 - **⚛️ Frontend**: React TypeScript application with Material-UI
-- **📊 Monitoring**: Prometheus, Grafana, ELK stack for comprehensive observability
+- **[METRICS] Monitoring**: Prometheus, Grafana, ELK stack for comprehensive observability
 - **[DEPLOY] Deployment**: Automated deployment scripts and CI/CD ready configuration
-- **🛡️ Security**: Production-ready security headers, SSL, and authentication
+- **[SECURITY] Security**: Production-ready security headers, SSL, and authentication
 
-## 📁 Project Structure
+## [FOLDER] Project Structure
 
 ```
 atonixcorp-platform/
@@ -63,7 +63,7 @@ atonixcorp-platform/
 └── docs/                  # Documentation
 ```
 
-## 🎯 Available Commands
+## [TARGET] Available Commands
 
 ### Platform Management
 
@@ -104,7 +104,7 @@ atonixcorp-platform/
 docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
 ```
 
-## 🌐 Access Points
+## [NETWORK] Access Points
 
 Once running, you can access:
 
@@ -118,7 +118,7 @@ Once running, you can access:
 | **Prometheus** | http://localhost:9090 | Metrics collection |
 | **Kibana** | http://localhost:5601 | Log analysis |
 
-## 🔧 Configuration
+## [TOOLS] Configuration
 
 ### Environment Files
 
@@ -186,7 +186,7 @@ docker-compose exec frontend npm run build
 ./manage.sh logs db
 ```
 
-## 📊 Monitoring & Observability
+## [METRICS] Monitoring & Observability
 
 ### Metrics Dashboard (Grafana)
 
@@ -248,7 +248,7 @@ curl http://localhost:8080/api/health/
    ./manage.sh status
    ```
 
-## 🔒 Security Features
+## [SECURE] Security Features
 
 - **Authentication**: Token-based API authentication
 - **Authorization**: Role-based access control
@@ -285,13 +285,13 @@ curl http://localhost:8080/api/health/
 - View service status: `./manage.sh status`
 - Access health check: `curl http://localhost:8080/api/health/`
 
-## 📚 Documentation
+## [DOCS] Documentation
 
 - [Infrastructure Documentation](INFRASTRUCTURE.md) - Detailed architecture guide
 - [Deployment Guide](DEPLOYMENT.md) - Production deployment instructions
 - [Troubleshooting Guide](TROUBLESHOOTING.md) - Common issues and solutions
 
-## 🎉 What's Next?
+## [NEXT] What's Next?
 
 Your AtonixCorp Platform is now equipped with enterprise-grade infrastructure! You can:
 

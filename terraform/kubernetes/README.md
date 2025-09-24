@@ -2,7 +2,7 @@
 
 This directory contains Terraform configurations for deploying the AtonixCorp Platform to Kubernetes clusters.
 
-## 🏗️ Architecture Overview
+## [ARCHITECTURE] Architecture Overview
 
 The infrastructure is organized into modular components:
 
@@ -16,7 +16,7 @@ The infrastructure is organized into modular components:
 - **Ingress**: Traffic routing with SSL termination
 - **Monitoring**: Prometheus-based monitoring stack
 
-## 📁 Directory Structure
+## [STRUCTURE] Directory Structure
 
 ```
 terraform/kubernetes/
@@ -117,7 +117,7 @@ EOF
    echo "INGRESS_IP dev.atonixcorp.local" >> /etc/hosts
    ```
 
-## 🌍 Environment Configurations
+## [ENVIRONMENT] Environment Configurations
 
 ### Development Environment
 
@@ -141,7 +141,7 @@ terraform apply -var-file="terraform.tfvars.dev"
 terraform apply -var-file="terraform.tfvars.prod"
 ```
 
-## 🔧 Configuration
+## [CONFIG] Configuration
 
 ### Required Variables
 
@@ -174,7 +174,7 @@ export TF_VAR_image_registry="your-registry.com"
 | `zookeeper_storage_size` | Zookeeper storage size | `10Gi` |
 | `zookeeper_enable_jmx` | Enable Zookeeper JMX monitoring | `true` |
 
-## 📊 Monitoring and Observability
+## [MONITORING] Monitoring and Observability
 
 ### Prometheus Metrics
 
@@ -202,7 +202,7 @@ kubectl port-forward -n atonixcorp-platform svc/atonixcorp-platform-prometheus 9
 - **Frontend Health**: `https://yourdomain.com/health`
 - **Database**: Internal health checks via probes
 
-## 🔒 Security Features
+## [SECURITY] Security Features
 
 ### Network Policies
 
@@ -242,7 +242,7 @@ kubectl scale deployment atonixcorp-platform-backend --replicas=5 -n atonixcorp-
 kubectl scale deployment atonixcorp-platform-frontend --replicas=3 -n atonixcorp-platform
 ```
 
-## 🔄 Updates and Maintenance
+## [MAINTENANCE] Updates and Maintenance
 
 ### Rolling Updates
 
@@ -265,7 +265,7 @@ Migrations run automatically via init containers during deployments.
 kubectl exec -it atonixcorp-platform-postgresql-0 -n atonixcorp-platform -- pg_dump -U atonixuser atonixcorp_prod > backup.sql
 ```
 
-## 🐛 Troubleshooting
+## [TROUBLESHOOTING] Troubleshooting
 
 ### Common Issues
 
@@ -325,7 +325,7 @@ kubectl delete pvc --all -n atonixcorp-platform
 kubectl delete namespace atonixcorp-platform
 ```
 
-## 📚 Additional Resources
+## [RESOURCES] Additional Resources
 
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Terraform Kubernetes Provider](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs)

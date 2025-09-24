@@ -1,12 +1,12 @@
-# 🚢 Pushing AtonixCorp Platform to Quay.io Registry
+# [SHIP] Pushing AtonixCorp Platform to Quay.io Registry
 
-## 📋 Prerequisites
+## [CLIPBOARD] Prerequisites
 
 1. **Quay.io Account**: You need an account at [quay.io](https://quay.io)
 2. **Repository**: Create a repository `atonixdev/atonixcorp-platform` on Quay.io
 3. **Permissions**: Ensure your account has push permissions to the repository
 
-## 🔐 Step 1: Login to Quay.io
+## [LOCKED] Step 1: Login to Quay.io
 
 ```bash
 # Login using the build script
@@ -20,7 +20,7 @@ When prompted, enter:
 - **Username**: Your Quay.io username (probably `atonixdev`)
 - **Password**: Your Quay.io password or robot token
 
-## 📦 Step 2: Build the Container (if not already built)
+## [PACKAGE] Step 2: Build the Container (if not already built)
 
 ```bash
 # Build the latest container
@@ -59,7 +59,7 @@ VERSION=v1.0.0 ./build.sh push
 VERSION=v1.0.0 ./build.sh release
 ```
 
-## 🔍 Verification
+## [SEARCH] Verification
 
 After pushing, you can verify the image is available:
 
@@ -71,7 +71,7 @@ nerdctl pull quay.io/atonixdev/atonixcorp-platform:latest
 nerdctl run -d -p 8080:8080 quay.io/atonixdev/atonixcorp-platform:latest
 ```
 
-## 🌐 Production Deployment from Registry
+## [NETWORK] Production Deployment from Registry
 
 Once pushed to Quay.io, you can deploy to production:
 
@@ -90,7 +90,7 @@ docker run -d \
   quay.io/atonixdev/atonixcorp-platform:latest
 ```
 
-## 🔧 Advanced Usage
+## [TOOLS] Advanced Usage
 
 ### Multiple Versions
 
@@ -112,7 +112,7 @@ VERSION=v1.0.0 ./build.sh release
 REGISTRY=your-registry.com/yourorg ./build.sh release
 ```
 
-## 📊 Registry Information
+## [METRICS] Registry Information
 
 - **Registry**: `quay.io/atonixdev`
 - **Repository**: `atonixcorp-platform`
@@ -120,13 +120,13 @@ REGISTRY=your-registry.com/yourorg ./build.sh release
 - **Size**: ~505 MB
 - **Architecture**: linux/amd64
 
-## 🔒 Security Notes
+## [SECURE] Security Notes
 
 1. **Robot Tokens**: For CI/CD, use Quay.io robot tokens instead of personal passwords
 2. **Private Repository**: Consider making the repository private if this is proprietary code
 3. **Vulnerability Scanning**: Quay.io provides automatic vulnerability scanning
 
-## 🚨 Troubleshooting
+## [ALERT] Troubleshooting
 
 ### Authentication Issues
 ```bash
@@ -153,7 +153,7 @@ nerdctl images | grep atonixcorp-platform
 
 ---
 
-## ✅ Quick Start Commands
+## [OK] Quick Start Commands
 
 ```bash
 # 1. Login to Quay.io
@@ -166,4 +166,4 @@ nerdctl images | grep atonixcorp-platform
 docker run -d -p 8080:8080 quay.io/atonixdev/atonixcorp-platform:latest
 ```
 
-🎉 **Your unified AtonixCorp Platform container is now ready for production deployment from Quay.io!**
+[SUCCESS] **Your unified AtonixCorp Platform container is now ready for production deployment from Quay.io!**

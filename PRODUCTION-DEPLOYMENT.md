@@ -1,34 +1,34 @@
 # [DEPLOY] AtonixCorp Platform - Production Deployment Guide
 
-## 📦 Main Production Image
+## [PACKAGE] Main Production Image
 
 **Image to push to production:** `atonixcorp-platform:latest` or `quay.io/atonixdev/atonixcorp-platform:latest`
 
-## 🌐 Production Domains
+## [DOMAINS] Production Domains
 
 - **Frontend**: `https://atonixcorp.org` - Serves the React application
 - **Backend API**: `https://api.atonixcorp.org` - Serves the Django REST API  
 - **Admin Interface**: `https://api.atonixcorp.org/admin/` - Django admin panel
 
-## 🏗️ Architecture Overview
+## [ARCHITECTURE] Architecture Overview
 
 ### Single Unified Container: `atonixcorp-platform:latest`
 
 This container includes:
 
-#### 🎯 **Frontend (React)**
+#### [FRONTEND] **Frontend (React)**
 - **Location**: Built React app stored in `/app/static/` inside the container
 - **Build process**: Multi-stage Docker build compiles React → static files
 - **Served by**: Nginx on port 8080
 - **Entry point**: `http://localhost:8080/` serves the React SPA
 
-#### 🔧 **Backend (Django)**
+#### [BACKEND] **Backend (Django)**
 - **Location**: Django application running on port 8000 inside container
 - **Process manager**: Supervised by supervisord
 - **API endpoints**: Proxied through Nginx from port 8080
 - **Access**: `http://localhost:8080/api/`, `http://localhost:8080/admin/`
 
-#### 🌐 **Web Server (Nginx)**
+#### [WEB] **Web Server (Nginx)**
 - **Port**: 8080 (exposed from container)
 - **Function**: 
   - Serves React static files for `/`
@@ -36,13 +36,13 @@ This container includes:
   - Handles static/media file serving
   - Provides gzip compression and security headers
 
-#### 📋 **Process Management (Supervisor)**
+#### [PROCESS] **Process Management (Supervisor)**
 - **Django server**: Python development server on :8000
 - **Nginx**: Web server on :8080  
 - **Django migrations**: Runs automatically on startup
 - **Static files collection**: Runs automatically on startup
 
-## 🗃️ External Dependencies (Separate Containers)
+## [DEPS] External Dependencies (Separate Containers)
 
 ### Database: `postgres:15-alpine`
 - **Purpose**: Main application database
@@ -54,7 +54,7 @@ This container includes:
 - **Port**: 6380 (external) → 6379 (internal)
 - **Connection**: `redis://redis:6379`
 
-## 🚢 Production Deployment
+## [SHIP] Production Deployment
 
 ### Option 1: Deploy Unified Container Only
 ```bash
@@ -131,14 +131,14 @@ volumes:
   redis_data:
 ```
 
-## 🔗 Access Points in Production
+## [LINK] Access Points in Production
 
 - **Main Application**: `https://your-domain.com/`
 - **API Endpoints**: `https://your-domain.com/api/`
 - **Admin Interface**: `https://your-domain.com/admin/`
 - **Health Check**: `https://your-domain.com/health/`
 
-## ⚙️ Environment Variables for Production
+## [ENV] Environment Variables for Production
 
 ```bash
 # Database
@@ -161,7 +161,7 @@ EMAIL_HOST_USER=your-email@domain.com
 EMAIL_HOST_PASSWORD=your-email-password
 ```
 
-## 📊 Container Size and Performance
+## [PERFORMANCE] Container Size and Performance
 
 ```
 Image: atonixcorp-platform:latest
@@ -173,7 +173,7 @@ Components:
 - Nginx + system deps: ~115 MB
 ```
 
-## 🔍 Verification Commands
+## [VERIFY] Verification Commands
 
 ```bash
 # Check container health
@@ -189,7 +189,7 @@ curl -I http://localhost:8080/api/
 docker logs atonixcorp-platform-app-1
 ```
 
-## 🎯 Key Benefits of This Architecture
+## [BENEFITS] Key Benefits of This Architecture
 
 1. **Single Deployment Unit**: One container with both frontend and backend
 2. **No CORS Issues**: Frontend and backend served from same origin
@@ -198,7 +198,7 @@ docker logs atonixcorp-platform-app-1
 5. **Scalable**: Can be easily replicated behind a load balancer
 6. **Self-Contained**: Only requires external database and cache
 
-## 📝 Important Notes
+## [NOTES] Important Notes
 
 - The **frontend is NOT running as a separate server** - it's built into static files and served by Nginx
 - The **main container** (`atonixcorp-platform:latest`) is what you deploy to production  
@@ -208,4 +208,4 @@ docker logs atonixcorp-platform-app-1
 
 ---
 
-**🎉 This unified approach gives you a production-ready, single-container deployment that's easy to scale and manage!**
+**[SUCCESS] This unified approach gives you a production-ready, single-container deployment that's easy to scale and manage!**

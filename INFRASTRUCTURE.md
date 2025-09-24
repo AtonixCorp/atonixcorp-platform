@@ -1,10 +1,10 @@
 # AtonixCorp Platform - Infrastructure Documentation
 
-## 🏗️ Infrastructure Overview
+## [INFRA] Infrastructure Overview
 
 The AtonixCorp Platform is built with a modern, scalable, and production-ready infrastructure using Docker containers and microservices architecture.
 
-### 🎯 Architecture Components
+### [ARCH] Architecture Components
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -19,7 +19,7 @@ The AtonixCorp Platform is built with a modern, scalable, and production-ready i
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### 🐳 Container Services
+### [CONTAINER] Container Services
 
 | Service | Purpose | Port | Health Check |
 |---------|---------|------|--------------|
@@ -70,7 +70,7 @@ cp .env.example .env.production
 ./manage.sh status
 ```
 
-## 📊 Monitoring & Observability
+## [MONITOR] Monitoring & Observability
 
 ### Monitoring Stack
 
@@ -101,7 +101,7 @@ docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
 - **Cache**: Hit rates, memory usage
 - **Business**: User registrations, active sessions
 
-## 🔧 Configuration Management
+## [CONFIG] Configuration Management
 
 ### Environment Variables
 
@@ -134,7 +134,7 @@ export SECRET_KEY="your-generated-secret-key"
 export DATABASE_PASSWORD="your-secure-password"
 ```
 
-## 📦 Deployment Strategies
+## [DEPLOYMENT] Deployment Strategies
 
 ### Rolling Deployment
 
@@ -184,7 +184,7 @@ curl http://green.atonixcorp.com/api/health/
 docker run --rm -v atonixcorp_postgres_data:/data -v $(pwd)/backups:/backup ubuntu tar czf /backup/postgres_data_$(date +%Y%m%d).tar.gz -C /data .
 ```
 
-## 🔍 Troubleshooting
+## [DEBUG] Troubleshooting
 
 ### Common Issues
 
@@ -241,7 +241,7 @@ docker-compose exec redis redis-cli ping
 curl http://localhost:8080/
 ```
 
-## 📈 Scaling
+## [SCALING] Scaling
 
 ### Horizontal Scaling
 
@@ -270,7 +270,7 @@ upstream django_backend {
 - **Connection Pooling**: Use PgBouncer for connection management
 - **Partitioning**: Implement table partitioning for large datasets
 
-## 🛡️ Security Best Practices
+## [SECURITY] Security Best Practices
 
 ### Container Security
 
@@ -293,7 +293,7 @@ upstream django_backend {
 - **Secret Management**: Environment variable encryption
 - **Audit Logging**: Comprehensive access logging
 
-## 📚 Additional Resources
+## [RESOURCES] Additional Resources
 
 ### Documentation Links
 

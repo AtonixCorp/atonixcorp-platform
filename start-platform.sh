@@ -3,7 +3,7 @@
 # AtonixCorp Platform Startup Script
 # This script provides easy commands to start the entire platform
 
-set -e
+set    echo -e "${RED}[CLEANUP] Cleaning all AtonixCorp Platform services and data...${NC}"-e
 
 # Colors for output
 RED='\033[0;31m'
@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 print_header() {
     echo -e "${BLUE}=================================="
-    echo -e "🚀 AtonixCorp Platform Manager"
+    echo -e "[PLATFORM] AtonixCorp Platform Manager"
     echo -e "==================================${NC}"
 }
 
@@ -45,28 +45,28 @@ print_usage() {
 
 check_requirements() {
     if ! command -v docker &> /dev/null; then
-        echo -e "${RED}❌ Docker is not installed. Please install Docker first.${NC}"
+        echo -e "${RED}[ERROR] Docker is not installed. Please install Docker first.${NC}"
         exit 1
     fi
 
     if ! docker compose version &> /dev/null && ! command -v docker-compose &> /dev/null; then
-        echo -e "${RED}❌ Docker Compose is not installed. Please install Docker Compose first.${NC}"
+        echo -e "${RED}[ERROR] Docker Compose is not installed. Please install Docker Compose first.${NC}"
         exit 1
     fi
 
-    echo -e "${GREEN}✅ Docker and Docker Compose are available${NC}"
+    echo -e "${GREEN}[OK] Docker and Docker Compose are available${NC}"
 }
 
 create_env_if_needed() {
     if [ ! -f .env ]; then
-        echo -e "${YELLOW}📝 Creating .env file from template...${NC}"
+        echo -e "${YELLOW}[CONFIG] Creating .env file from template...${NC}"
         cp .env.example .env
-        echo -e "${GREEN}✅ .env file created. Please edit it with your configuration.${NC}"
+        echo -e "${GREEN}[OK] .env file created. Please edit it with your configuration.${NC}"
     fi
 }
 
 start_minimal() {
-    echo -e "${GREEN}🚀 Starting minimal AtonixCorp Platform...${NC}"
+    echo -e "${GREEN}[START] Starting minimal AtonixCorp Platform...${NC}"
     echo "Services: PostgreSQL, Redis, Backend, Frontend"
     
     COMPOSE_CMD="docker-compose -f docker-compose.all-in-one.yml"
@@ -75,14 +75,14 @@ start_minimal() {
 }
 
 start_full() {
-    echo -e "${GREEN}🚀 Starting full AtonixCorp Platform...${NC}"
+    echo -e "${GREEN}[START] Starting full AtonixCorp Platform...${NC}"
     echo "Services: All development services"
     
     docker compose -f docker-compose.yml up $@
 }
 
 start_production() {
-    echo -e "${GREEN}🚀 Starting production AtonixCorp Platform...${NC}"
+    echo -e "${GREEN}[START] Starting production AtonixCorp Platform...${NC}"
     echo "Services: Production-ready services with Nginx"
     
     COMPOSE_CMD="docker-compose -f docker-compose.all-in-one.yml"
@@ -91,7 +91,7 @@ start_production() {
 }
 
 start_messaging() {
-    echo -e "${GREEN}🚀 Starting AtonixCorp Platform with messaging...${NC}"
+    echo -e "${GREEN}[START] Starting AtonixCorp Platform with messaging...${NC}"
     echo "Services: Full stack with Kafka, RabbitMQ, and Celery"
     
     COMPOSE_CMD="docker-compose -f docker-compose.all-in-one.yml"
@@ -100,7 +100,7 @@ start_messaging() {
 }
 
 start_unified() {
-    echo -e "${GREEN}🚀 Starting unified AtonixCorp Platform...${NC}"
+    echo -e "${GREEN}[START] Starting unified AtonixCorp Platform...${NC}"
     echo "Services: Single container with frontend and backend"
     
     docker compose -f docker-compose.unified.yml up $@
@@ -114,7 +114,7 @@ stop_services() {
     docker compose -f docker-compose.unified.yml down 2>/dev/null || true
     docker compose -f docker-compose.production.yml down 2>/dev/null || true
     
-    echo -e "${GREEN}✅ All services stopped${NC}"
+    echo -e "${GREEN}[OK] All services stopped${NC}"
 }
 
 clean_services() {
@@ -129,19 +129,19 @@ clean_services() {
         docker compose -f docker-compose.unified.yml down -v --remove-orphans 2>/dev/null || true
         docker compose -f docker-compose.production.yml down -v --remove-orphans 2>/dev/null || true
         
-        echo -e "${GREEN}✅ All services and data cleaned${NC}"
+        echo -e "${GREEN}[OK] All services and data cleaned${NC}"
     else
         echo "Cancelled."
     fi
 }
 
 show_logs() {
-    echo -e "${BLUE}📋 Showing logs for all services...${NC}"
+    echo -e "${BLUE}[LOGS] Showing logs for all services...${NC}"
     docker compose -f docker-compose.all-in-one.yml logs -f $@
 }
 
 show_status() {
-    echo -e "${BLUE}📊 Service Status:${NC}"
+    echo -e "${BLUE}[STATUS] Service Status:${NC}"
     docker compose -f docker-compose.all-in-one.yml ps
     echo ""
     echo -e "${BLUE}💾 Volume Usage:${NC}"
@@ -150,22 +150,22 @@ show_status() {
 
 print_success_info() {
     echo ""
-    echo -e "${GREEN}🎉 AtonixCorp Platform is starting up!${NC}"
+    echo -e "${GREEN}[SUCCESS] AtonixCorp Platform is starting up!${NC}"
     echo ""
-    echo -e "${BLUE}📱 Access URLs:${NC}"
+    echo -e "${BLUE}[ACCESS] Access URLs:${NC}"
     echo "  Frontend:          http://localhost:3000"
     echo "  Backend API:       http://localhost:8000"
     echo "  Admin Panel:       http://localhost:8000/admin"
     echo "  API Documentation: http://localhost:8000/api/docs"
     echo ""
-    echo -e "${BLUE}🔧 Development Tools:${NC}"
+    echo -e "${BLUE}[TOOLS] Development Tools:${NC}"
     echo "  PostgreSQL:        localhost:5432 (user: atonixcorp_user, db: atonixcorp)"
     echo "  Redis:             localhost:6379"
     echo "  MailHog UI:        http://localhost:8025 (if email profile enabled)"
     echo "  RabbitMQ UI:       http://localhost:15672 (if messaging profile enabled)"
     echo "  Kafka UI:          http://localhost:8090 (if using full compose)"
     echo ""
-    echo -e "${YELLOW}💡 Tips:${NC}"
+    echo -e "${YELLOW}[TIPS] Tips:${NC}"
     echo "  - Use 'docker compose logs -f [service]' to view specific service logs"
     echo "  - Edit .env file to configure social authentication and other settings"
     echo "  - Run './start-platform.sh stop' to stop all services"
@@ -205,7 +205,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         *)
-            echo -e "${RED}❌ Unknown option: $1${NC}"
+            echo -e "${RED}[ERROR] Unknown option: $1${NC}"
             print_usage
             exit 1
             ;;
@@ -253,7 +253,7 @@ case $COMMAND in
         show_status
         ;;
     *)
-        echo -e "${RED}❌ Unknown command: $COMMAND${NC}"
+        echo -e "${RED}[ERROR] Unknown command: $COMMAND${NC}"
         print_usage
         exit 1
         ;;

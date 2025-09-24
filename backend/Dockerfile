@@ -16,12 +16,13 @@ RUN apt-get update \
         curl \
         netcat-openbsd \
         git \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements*.txt /app/
-COPY security/requirements-security.txt /app/security/
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . /app/
@@ -30,8 +31,8 @@ COPY . /app/
 RUN mkdir -p /app/staticfiles /app/media
 
 # Create a non-root user
-RUN adduser --disabled-password --gecos '' --shell /bin/bash appuser
-RUN chown -R appuser:appuser /app
+RUN adduser --disabled-password --gecos '' --shell /bin/bash appuser \
+    && chown -R appuser:appuser /app
 USER appuser
 
 # Expose port
@@ -42,4 +43,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/api/health/ || exit 1
 
 # Run the application
-CMD ["gunicorn", "atonixcorp.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

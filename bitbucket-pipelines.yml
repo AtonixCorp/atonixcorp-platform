@@ -182,7 +182,7 @@ pipelines:
             - sleep 30  # Wait for deployment
             - curl -f https://api.atonixcorp.com/api/health/ || exit 1
             - curl -f https://atonixcorp.com/ || exit 1
-            - echo "✅ Deployment successful and smoke tests passed"
+            - echo "[OK] Deployment successful and smoke tests passed"
 
   # Infrastructure pipeline (Kubernetes only - no AWS Terraform)
   branches:

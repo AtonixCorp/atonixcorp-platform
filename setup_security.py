@@ -18,10 +18,10 @@ def print_banner():
     ║                  AtonixCorp Platform                         ║
     ║              Comprehensive Security Setup                    ║
     ║                                                              ║
-    ║  🔒 Encryption at Rest & in Transit                         ║
-    ║  🛡️  Multi-layer Attack Protection                         ║
-    ║  🔐 Secure Authentication & API Keys                        ║
-    ║  📊 Real-time Security Monitoring                           ║
+    ║  [SECURITY] Encryption at Rest & in Transit                         ║
+    ║  [PROTECTION] Multi-layer Attack Protection                         ║
+    ║  [AUTH] Secure Authentication & API Keys                        ║
+    ║  [MONITORING] Real-time Security Monitoring                           ║
     ╚══════════════════════════════════════════════════════════════╝
     """)
 
@@ -45,13 +45,13 @@ def install_security_packages():
         try:
             subprocess.run([sys.executable, "-m", "pip", "install", package], 
                          check=True, capture_output=True)
-            print(f"✅ Installed {package}")
+            print(f"[OK] Installed {package}")
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to install {package}: {e}")
+            print(f"[ERROR] Failed to install {package}: {e}")
 
 def generate_encryption_keys():
     """Generate encryption keys for the platform"""
-    print("\n🔑 Generating encryption keys...")
+    print("\n[KEYS] Generating encryption keys...")
     
     # Generate Fernet key for field encryption
     fernet_key = Fernet.generate_key()
@@ -102,12 +102,12 @@ DEFAULT_FROM_EMAIL=noreply@atonixcorp.com
     with open(env_file, "w") as f:
         f.write(env_content)
     
-    print("✅ Generated encryption keys and saved to .env file")
-    print("⚠️  IMPORTANT: Keep your .env file secure and never commit it to version control!")
+    print("[OK] Generated encryption keys and saved to .env file")
+    print("[WARNING] IMPORTANT: Keep your .env file secure and never commit it to version control!")
 
 def create_ssl_certificates():
     """Create SSL certificates for development"""
-    print("\n🔐 Creating SSL certificates for development...")
+    print("\n[SSL] Creating SSL certificates for development...")
     
     ssl_dir = Path("docker/ssl")
     ssl_dir.mkdir(exist_ok=True)
@@ -125,15 +125,15 @@ def create_ssl_certificates():
             "-subj", "/C=US/ST=CA/L=San Francisco/O=AtonixCorp/OU=Development/CN=localhost"
         ], check=True, capture_output=True)
         
-        print("✅ SSL certificates generated for development")
+        print("[OK] SSL certificates generated for development")
         
     except subprocess.CalledProcessError:
-        print("❌ Failed to generate SSL certificates. OpenSSL may not be installed.")
+        print("[ERROR] Failed to generate SSL certificates. OpenSSL may not be installed.")
         print("   You can install it with: apt-get install openssl (Ubuntu/Debian)")
 
 def setup_security_directories():
     """Create necessary security directories"""
-    print("\n📁 Setting up security directories...")
+    print("\n[DIRS] Setting up security directories...")
     
     directories = [
         "logs",
@@ -143,11 +143,11 @@ def setup_security_directories():
     
     for directory in directories:
         Path(directory).mkdir(parents=True, exist_ok=True)
-        print(f"✅ Created directory: {directory}")
+        print(f"[OK] Created directory: {directory}")
 
 def create_security_migration():
     """Create Django migration for security models"""
-    print("\n🗃️  Creating security database migration...")
+    print("\n[DB] Creating security database migration...")
     
     migration_content = '''# Generated security migration
 from django.db import migrations
@@ -172,11 +172,11 @@ class Migration(migrations.Migration):
     (Path("security") / "__init__.py").touch()
     (Path("security/migrations") / "__init__.py").touch()
     
-    print("✅ Security migration created")
+    print("[OK] Security migration created")
 
 def update_django_settings():
     """Update Django settings with security configuration"""
-    print("\n⚙️  Updating Django settings...")
+    print("\n[SETTINGS] Updating Django settings...")
     
     settings_security = '''
 # Security settings added by setup script
@@ -311,17 +311,17 @@ LOGGING = {
     if settings_file.exists():
         with open(settings_file, "a") as f:
             f.write(settings_security)
-        print("✅ Security settings added to Django configuration")
+        print("[OK] Security settings added to Django configuration")
     else:
-        print("❌ Django settings file not found. Please add security settings manually.")
+        print("[ERROR] Django settings file not found. Please add security settings manually.")
 
 def create_security_checklist():
     """Create security implementation checklist"""
-    print("\n📋 Creating security checklist...")
+    print("\n[CHECKLIST] Creating security checklist...")
     
     checklist = """# AtonixCorp Platform Security Implementation Checklist
 
-## ✅ Completed
+## [COMPLETED] Completed
 - [x] Data encryption at rest with Fernet
 - [x] Secure JWT authentication with rotation
 - [x] API key management system
@@ -352,7 +352,7 @@ def create_security_checklist():
 - [ ] Regular security assessments
 - [ ] Penetration testing
 
-## 🔧 Configuration
+## [CONFIG] Configuration
 
 ### Environment Variables
 Ensure these are set in your .env file:
@@ -404,11 +404,11 @@ If you detect a security incident:
     with open("SECURITY_CHECKLIST.md", "w") as f:
         f.write(checklist)
     
-    print("✅ Security checklist created: SECURITY_CHECKLIST.md")
+    print("[OK] Security checklist created: SECURITY_CHECKLIST.md")
 
 def run_security_tests():
     """Run basic security tests"""
-    print("\n🧪 Running security tests...")
+    print("\n[TESTS] Running security tests...")
     
     tests_passed = 0
     total_tests = 0
@@ -419,43 +419,43 @@ def run_security_tests():
         with open(".env", "r") as f:
             content = f.read()
             if "ENCRYPTION_KEY=" in content:
-                print("✅ Encryption key generated")
+                print("[OK] Encryption key generated")
                 tests_passed += 1
             else:
-                print("❌ Encryption key not found")
+                print("[ERROR] Encryption key not found")
     else:
-        print("❌ .env file not created")
+        print("[ERROR] .env file not created")
     
     # Test 2: Check if SSL certificates exist
     total_tests += 1
     if Path("docker/ssl/cert.pem").exists() and Path("docker/ssl/key.pem").exists():
-        print("✅ SSL certificates created")
+        print("[OK] SSL certificates created")
         tests_passed += 1
     else:
-        print("❌ SSL certificates not found")
+        print("[ERROR] SSL certificates not found")
     
     # Test 3: Check if security directory exists
     total_tests += 1
     if Path("security").exists():
-        print("✅ Security module created")
+        print("[OK] Security module created")
         tests_passed += 1
     else:
-        print("❌ Security module not found")
+        print("[ERROR] Security module not found")
     
     # Test 4: Check if logs directory exists
     total_tests += 1
     if Path("logs").exists():
-        print("✅ Logs directory created")
+        print("[OK] Logs directory created")
         tests_passed += 1
     else:
-        print("❌ Logs directory not found")
+        print("[ERROR] Logs directory not found")
     
-    print(f"\n📊 Security tests: {tests_passed}/{total_tests} passed")
+    print(f"\n[RESULTS] Security tests: {tests_passed}/{total_tests} passed")
     
     if tests_passed == total_tests:
-        print("🎉 All security tests passed!")
+        print("[SUCCESS] All security tests passed!")
     else:
-        print("⚠️  Some security tests failed. Please review the setup.")
+        print("[WARNING] Some security tests failed. Please review the setup.")
 
 def main():
     """Main setup function"""
@@ -464,7 +464,7 @@ def main():
     try:
         # Check if we're in the right directory
         if not Path("backend").exists():
-            print("❌ Please run this script from the project root directory")
+            print("[ERROR] Please run this script from the project root directory")
             sys.exit(1)
         
         # Run setup steps
@@ -479,16 +479,16 @@ def main():
         
         print("""
         
-🎉 Security setup completed successfully!
+[SUCCESS] Security setup completed successfully!
 
-🔧 Next steps:
+[NEXT] Next steps:
 1. Review the .env file and update settings as needed
 2. Run: python manage.py makemigrations security
 3. Run: python manage.py migrate
 4. Start Redis: redis-server
 5. Test your application with the new security features
 
-📚 Documentation:
+[DOCS] Documentation:
 - Security checklist: SECURITY_CHECKLIST.md
 - Configuration details in backend/security/
 
@@ -498,14 +498,14 @@ def main():
 - Monitor security logs regularly
 - Keep dependencies updated
 
-Happy securing! 🔒
+Happy securing! [SECURITY]
         """)
         
     except KeyboardInterrupt:
-        print("\n\n❌ Setup interrupted by user")
+        print("\n\n[INTERRUPT] Setup interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n\n❌ Setup failed with error: {e}")
+        print(f"\n\n[ERROR] Setup failed with error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

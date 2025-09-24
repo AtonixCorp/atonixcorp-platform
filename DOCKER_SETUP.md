@@ -2,7 +2,7 @@
 
 This guide explains how to run the entire AtonixCorp Platform using Docker Compose with a single command.
 
-## 🚀 Quick Start
+## [QUICKSTART] Quick Start
 
 ### Option 1: Use the Startup Script (Recommended)
 
@@ -30,7 +30,7 @@ docker-compose -f docker-compose.all-in-one.yml up db redis backend frontend
 docker-compose -f docker-compose.yml up
 ```
 
-## 📋 Available Docker Compose Files
+## [COMPOSE FILES] Available Docker Compose Files
 
 | File | Purpose | Services Included |
 |------|---------|-------------------|
@@ -40,7 +40,7 @@ docker-compose -f docker-compose.yml up
 | `docker-compose.simple.yml` | Minimal setup | Database + Redis + App |
 | `docker-compose.production.yml` | Production deployment | Production-optimized services |
 
-## 🛠️ Setup Instructions
+## [SETUP] Setup Instructions
 
 ### 1. Prerequisites
 
@@ -89,7 +89,7 @@ Includes message brokers and task queues:
 ```
 **Includes:** All services + Kafka, RabbitMQ, Celery, MailHog
 
-## 🔧 Service URLs & Access
+## [ACCESS] Service URLs & Access
 
 ### Application URLs
 - **Frontend (React):** http://localhost:3000
@@ -108,7 +108,7 @@ Includes message brokers and task queues:
 - **RabbitMQ Management:** http://localhost:15672 (admin/rabbitmq_password)
 - **Kafka UI:** http://localhost:8090
 
-## 📱 Social Authentication Setup
+## [SOCIAL AUTH] Social Authentication Setup
 
 The platform supports social login with GitHub, Google, GitLab, and LinkedIn. To enable:
 
@@ -133,7 +133,7 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
    - GitLab: `http://localhost:8000/api/auth/gitlab/callback/`
    - LinkedIn: `http://localhost:8000/api/auth/linkedin/callback/`
 
-## 🔨 Development Workflow
+## [WORKFLOW] Development Workflow
 
 ### Starting Development
 ```bash
@@ -163,7 +163,7 @@ docker-compose -f docker-compose.all-in-one.yml exec backend python manage.py mi
 docker-compose -f docker-compose.all-in-one.yml exec backend python manage.py createsuperuser
 ```
 
-## 🐛 Troubleshooting
+## [TROUBLESHOOTING] Troubleshooting
 
 ### Common Issues
 
@@ -247,7 +247,7 @@ docker rmi $(docker images "atonixcorp*" -q)
 docker system prune -a
 ```
 
-## 🔄 Updates & Maintenance
+## [UPDATES] Updates & Maintenance
 
 ### Update Dependencies
 ```bash
@@ -267,7 +267,7 @@ docker-compose exec db pg_dump -U atonixcorp_user atonixcorp > backup.sql
 docker run --rm -v atonixcorp-platform_postgres_data:/data -v $(pwd):/backup alpine tar czf /backup/postgres-backup.tar.gz /data
 ```
 
-## 📚 Additional Resources
+## [RESOURCES] Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
@@ -282,7 +282,7 @@ If you encounter issues:
 3. Check service status: `./start-platform.sh status`
 4. Create an issue in the project repository
 
-## 🎯 Performance Optimization
+## [PERFORMANCE] Performance Optimization
 
 ### For Development
 - Use minimal setup for faster startup

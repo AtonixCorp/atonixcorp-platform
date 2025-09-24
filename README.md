@@ -13,7 +13,7 @@ A comprehensive full-stack platform showcasing AtonixCorp's projects, teams, foc
 - **Responsive Design**: Mobile-first design with Material-UI components
 - **Real-time API**: Django REST Framework with automatic API documentation
 
-## 🏗️ Architecture
+## [ARCHITECTURE] Architecture
 
 ### Backend (Django)
 - **Framework**: Django 5.2.6 with Django REST Framework
@@ -30,7 +30,7 @@ A comprehensive full-stack platform showcasing AtonixCorp's projects, teams, foc
 - **HTTP Client**: Axios with automatic error handling and token management
 - **Build Tool**: Create React App with TypeScript template
 
-## 📁 Project Structure
+## [STRUCTURE] Project Structure
 
 ```
 atonixcorp-platform/
@@ -59,7 +59,7 @@ atonixcorp-platform/
 └── README.md               # This file
 ```
 
-## 🛠️ Installation & Setup
+## [SETUP] Installation & Setup
 
 ### Prerequisites
 
@@ -133,7 +133,7 @@ atonixcorp-platform/
    
    The frontend will be available at `http://localhost:3000`
 
-## 🔧 Development
+## [DEVELOPMENT] Development
 
 ### Backend Development
 
@@ -162,7 +162,7 @@ atonixcorp-platform/
 - `npm test` - Run tests
 - `npm run eject` - Eject from Create React App
 
-## 📡 API Endpoints
+## [API] API Endpoints
 
 ### Authentication
 - `POST /api/auth/login/` - User login
@@ -181,7 +181,7 @@ atonixcorp-platform/
 - `GET /api/contact-persons/` - List contact persons
 - `GET /api/office-locations/` - List office locations
 
-## 🎨 Features Overview
+## [FEATURES] Features Overview
 
 ### Project Management
 - Project listings with filtering and search
@@ -282,7 +282,7 @@ volumes:
   postgres_data:
 ```
 
-## 🧪 Testing
+## [TESTING] Testing
 
 ### Backend Testing
 ```bash
@@ -304,11 +304,11 @@ npm test
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## [LICENSE] License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🛠️ Built With
+## [BUILT] Built With
 
 - [Django](https://djangoproject.com/) - Backend framework
 - [Django REST Framework](https://django-rest-framework.org/) - API framework
@@ -318,7 +318,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [PostgreSQL](https://postgresql.org/) - Database (production)
 - [SQLite](https://sqlite.org/) - Database (development)
 
-## 📞 Support
+## [SUPPORT] Support
 
 For support and questions:
 - Email: support@atonixcorp.com

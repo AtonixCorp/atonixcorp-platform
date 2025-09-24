@@ -33,7 +33,7 @@ check_docker() {
         exit 1
     fi
     
-    echo "✅ Docker is ready"
+    echo "[OK] Docker is ready"
 }
 
 # Function to build images
@@ -46,12 +46,12 @@ build_images() {
         docker-compose build --no-cache
     fi
     
-    echo "✅ Images built successfully"
+    echo "[OK] Images built successfully"
 }
 
 # Function to run database migrations
 run_migrations() {
-    echo "🗄️  Running database migrations..."
+    echo "[DB] Running database migrations..."
     
     if [ "$ENVIRONMENT" = "production" ]; then
         docker-compose -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python manage.py migrate
@@ -59,7 +59,7 @@ run_migrations() {
         docker-compose run --rm backend python manage.py migrate
     fi
     
-    echo "✅ Migrations completed"
+    echo "[OK] Migrations completed"
 }
 
 # Function to collect static files
@@ -72,12 +72,12 @@ collect_static() {
         docker-compose run --rm backend python manage.py collectstatic --noinput
     fi
     
-    echo "✅ Static files collected"
+    echo "[OK] Static files collected"
 }
 
 # Function to start services
 start_services() {
-    echo "🎯 Starting services..."
+    echo "[START] Starting services..."
     
     if [ "$ENVIRONMENT" = "production" ]; then
         docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
@@ -85,7 +85,7 @@ start_services() {
         docker-compose up -d
     fi
     
-    echo "✅ Services started"
+    echo "[OK] Services started"
 }
 
 # Function to wait for services to be healthy
@@ -95,10 +95,10 @@ wait_for_health() {
     # Wait for backend health check
     for i in {1..30}; do
         if curl -f http://localhost:8080/api/health/ &> /dev/null; then
-            echo "✅ Backend is healthy"
+            echo "[OK] Backend is healthy"
             break
         else
-            echo "⏳ Waiting for backend... ($i/30)"
+            echo "[WAIT] Waiting for backend... ($i/30)"
             sleep 10
         fi
     done
@@ -106,10 +106,10 @@ wait_for_health() {
     # Wait for frontend
     for i in {1..30}; do
         if curl -f http://localhost:8080/ &> /dev/null; then
-            echo "✅ Frontend is healthy"
+            echo "[OK] Frontend is healthy"
             break
         else
-            echo "⏳ Waiting for frontend... ($i/30)"
+            echo "[WAIT] Waiting for frontend... ($i/30)"
             sleep 10
         fi
     done
@@ -117,11 +117,11 @@ wait_for_health() {
 
 # Function to run post-deployment tasks
 post_deployment() {
-    echo "🔧 Running post-deployment tasks..."
+    echo "[CONFIG] Running post-deployment tasks..."
     
     # Create superuser if it doesn't exist (production only)
     if [ "$ENVIRONMENT" = "production" ]; then
-        echo "👤 Creating superuser if needed..."
+        echo "[USER] Creating superuser if needed..."
         docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend python manage.py shell -c "
 from django.contrib.auth.models import User
 if not User.objects.filter(username='admin').exists():
@@ -132,21 +132,21 @@ else:
 "
     fi
     
-    echo "✅ Post-deployment tasks completed"
+    echo "[OK] Post-deployment tasks completed"
 }
 
 # Function to display status
 show_status() {
     echo ""
-    echo "🎉 Deployment completed successfully!"
+    echo "[SUCCESS] Deployment completed successfully!"
     echo ""
-    echo "📍 Access your platform:"
+    echo "[ACCESS] Access your platform:"
     echo "   Frontend: http://localhost:8080"
     echo "   Backend API: http://localhost:8080/api/"
     echo "   Admin Panel: http://localhost:8080/admin/"
     echo "   Health Check: http://localhost:8080/api/health/"
     echo ""
-    echo "🔧 Useful commands:"
+    echo "[TOOLS] Useful commands:"
     echo "   View logs: docker-compose logs -f"
     echo "   Stop services: docker-compose down"
     echo "   Restart services: docker-compose restart"

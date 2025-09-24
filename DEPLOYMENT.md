@@ -21,7 +21,7 @@ This guide walks you through deploying the AtonixCorp Platform to a production e
 - [ ] Database backup strategy planned
 - [ ] Monitoring accounts set up (Sentry, etc.)
 
-## 📋 Step-by-Step Deployment
+## [GUIDE] Step-by-Step Deployment
 
 ### 1. Server Setup
 
@@ -185,7 +185,7 @@ python manage.py createsuperuser
 sudo nano /etc/logrotate.d/atonixcorp
 ```
 
-## 🔒 Security Hardening
+## [SECURITY] Security Hardening
 
 ### Firewall Configuration
 
@@ -225,7 +225,7 @@ services:
           memory: 512M
 ```
 
-## 📊 Monitoring Setup
+## [MONITORING] Monitoring Setup
 
 ### Application Monitoring
 
@@ -266,7 +266,7 @@ cat > /etc/logrotate.d/atonixcorp << EOF
 EOF
 ```
 
-## 🔄 Automated Backups
+## [BACKUPS] Automated Backups
 
 ### Database Backup Script
 
@@ -303,7 +303,7 @@ crontab -e
 0 3 * * 0 docker system prune -f
 ```
 
-## 📈 Performance Optimization
+## [PERFORMANCE] Performance Optimization
 
 ### Database Optimization
 
@@ -333,7 +333,7 @@ REDIS_MAXMEMORY=512mb
 REDIS_MAXMEMORY_POLICY=allkeys-lru
 ```
 
-## 🔧 Maintenance
+## [MAINTENANCE] Maintenance
 
 ### Regular Updates
 
@@ -396,7 +396,7 @@ git checkout previous-tag
 
 ---
 
-## 📞 Support
+## [SUPPORT] Support
 
 For deployment support, contact:
 - **Email**: devops@atonixcorp.com

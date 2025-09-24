@@ -27,7 +27,7 @@ nerdctl build -f Dockerfile.fullstack -t atonixcorp-platform:latest .
 nerdctl compose -f docker-compose.unified.yml up -d
 ```
 
-## 🌐 Access Points
+## [ACCESS] Access Points
 
 Once running, you can access:
 
@@ -38,7 +38,7 @@ Once running, you can access:
 - **RabbitMQ UI**: http://localhost:15672 (admin/rabbitmq_password)
 - **MailHog UI**: http://localhost:8025
 
-## 🏗️ Architecture
+## [ARCHITECTURE] Architecture
 
 ### Single Container Approach
 ```
@@ -64,7 +64,7 @@ Once running, you can access:
 - RabbitMQ (Ports 5672, 15672)
 - MailHog (Ports 1025, 8025)
 
-## 🔧 Build Scripts
+## [BUILD] Build Scripts
 
 ### Available Commands
 ```bash
@@ -82,7 +82,7 @@ Once running, you can access:
 ```
 This mounts your source code for live development.
 
-## 📁 Container Structure
+## [CONTAINER] Container Structure
 
 ### Inside the Container:
 ```
@@ -110,7 +110,7 @@ This mounts your source code for live development.
     └── supervisor/conf.d/supervisord.conf  # Supervisor config
 ```
 
-## 🐳 Dockerfile Options
+## [DOCKER] Dockerfile Options
 
 ### 1. Full Build (Dockerfile.fullstack)
 - Builds React frontend from source
@@ -123,7 +123,7 @@ This mounts your source code for live development.
 - Faster build times
 - **Use this for**: Quick testing when frontend is already built
 
-## 🔍 Health Monitoring
+## [HEALTH] Health Monitoring
 
 ### Health Check Endpoint
 ```bash
@@ -157,7 +157,7 @@ nerdctl compose -f docker-compose.unified.yml logs app
 nerdctl compose -f docker-compose.unified.yml logs nginx
 ```
 
-## 🛠️ Customization
+## [CUSTOMIZATION] Customization
 
 ### Environment Variables
 Edit `docker-compose.unified.yml` to customize:
@@ -211,7 +211,7 @@ services:
 - Use Let's Encrypt certificates
 - Update ALLOWED_HOSTS
 
-## 🔧 Troubleshooting
+## [TROUBLESHOOTING] Troubleshooting
 
 ### Common Issues
 
@@ -256,7 +256,7 @@ nerdctl compose -f docker-compose.unified.yml restart app
 2. Verify health: `curl http://localhost/health/`
 3. Rebuild: `./build.sh clean && ./build.sh run`
 
-## 📊 Monitoring
+## [MONITORING] Monitoring
 
 ### Application Metrics
 - Health endpoint: `/health/`
