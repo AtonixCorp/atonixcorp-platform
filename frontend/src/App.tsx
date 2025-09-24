@@ -26,6 +26,7 @@ import FocusAreaDetailPage from './pages/FocusAreaDetailPage';
 import ResourcesPage from './pages/ResourcesPage';
 import CommunityPage from './pages/CommunityPage';
 import ContactPage from './pages/ContactPage';
+import Dashboard from './pages/Dashboard';
 
 // Auth Components
 import SocialCallback from './components/Auth/SocialCallback';
@@ -318,6 +319,7 @@ function App() {
               <Box component="main" sx={{ flex: 1 }}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/projects/:slug" element={<ProjectDetailPage />} />
                   <Route path="/teams" element={<TeamsPage />} />

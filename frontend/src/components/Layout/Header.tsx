@@ -25,11 +25,12 @@ import {
   Settings,
   AccountCircle,
 } from '@mui/icons-material';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const theme = useTheme();
@@ -285,6 +286,24 @@ const Header: React.FC = () => {
                       </Box>
                     </MenuItem>
                     <Divider sx={{ my: 1, backgroundColor: '#e2e8f0' }} />
+                    <MenuItem 
+                      onClick={() => {
+                        handleClose();
+                        navigate('/dashboard');
+                      }}
+                      sx={{
+                        borderRadius: '8px',
+                        mx: 1,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                          transform: 'translateX(4px)',
+                        },
+                      }}
+                    >
+                      <BusinessIcon sx={{ mr: 2, color: '#64748b' }} />
+                      <Typography variant="body2">Dashboard</Typography>
+                    </MenuItem>
                     <MenuItem 
                       onClick={handleClose}
                       sx={{
