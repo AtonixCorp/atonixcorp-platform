@@ -1,5 +1,20 @@
 // Authentication Types
 
+export type SocialProvider = 'github' | 'google' | 'gitlab' | 'linkedin';
+
+export interface SocialLoginRequest {
+  provider: SocialProvider;
+  code: string;
+  redirect_uri: string;
+}
+
+export interface SocialLoginResponse {
+  message: string;
+  token: string;
+  user: User;
+  is_new_user: boolean;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -50,6 +65,7 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
   signup: (userData: SignupRequest) => Promise<void>;
+  socialLogin: (provider: SocialProvider) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
 }

@@ -38,7 +38,7 @@ terraform/kubernetes/
     └── monitoring/         # Prometheus monitoring
 ```
 
-## 🚀 Quick Start
+## [START] Quick Start
 
 ### Prerequisites
 
@@ -223,7 +223,7 @@ kubectl port-forward -n atonixcorp-platform svc/atonixcorp-platform-prometheus 9
 - HTTPS redirect enforcement
 - HSTS headers
 
-## 🚀 Scaling
+## [SCALE] Scaling
 
 ### Horizontal Pod Autoscaler (HPA)
 

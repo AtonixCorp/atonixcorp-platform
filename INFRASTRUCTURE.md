@@ -31,7 +31,7 @@ The AtonixCorp Platform is built with a modern, scalable, and production-ready i
 | **celery** | Background task worker | - | Task processing |
 | **celery-beat** | Scheduled task scheduler | - | Beat scheduling |
 
-## 🚀 Quick Start
+## [START] Quick Start
 
 ### Prerequisites
 

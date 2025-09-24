@@ -2,7 +2,7 @@
 
 A comprehensive full-stack platform showcasing AtonixCorp's projects, teams, focus areas, resources, and community features. Built with Django REST API backend and React TypeScript frontend.
 
-## 🚀 Features
+## [FEATURES] Features
 
 - **Project Showcase**: Interactive project listings with detailed views, filtering, and search
 - **Team Profiles**: Comprehensive team information with skills, achievements, and member details
@@ -213,7 +213,7 @@ atonixcorp-platform/
 - Member directory and networking
 - Badge and reputation systems
 
-## 🚀 Deployment
+## [DEPLOY] Deployment
 
 ### Production Checklist
 

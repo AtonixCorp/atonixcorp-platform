@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, LoginRequest, SignupRequest, AuthContextType } from '../types/auth';
+import { User, LoginRequest, SignupRequest, AuthContextType, SocialProvider } from '../types/auth';
 import { authService } from '../services/authService';
+import { SocialAuthService } from '../services/socialAuthService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -73,6 +74,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const socialLogin = async (provider: SocialProvider): Promise<void> => {
+    try {
+      // Check if this is a callback from OAuth provider
+      if (SocialAuthService.isOAuthCallback()) {
+        setIsLoading(true);
+        const response = await SocialAuthService.handleCallback();
+        
+        // Store token
+        localStorage.setItem('authToken', response.token);
+        setUser(response.user);
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        // Initiate OAuth flow
+        SocialAuthService.initiateLogin(provider);
+      }
+    } catch (error) {
+      console.error(`${provider} login failed:`, error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = (): void => {
     localStorage.removeItem('authToken');
     setUser(null);
@@ -95,6 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     login,
     signup,
+    socialLogin,
     logout,
     refreshToken,
   };

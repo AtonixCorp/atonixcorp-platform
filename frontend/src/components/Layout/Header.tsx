@@ -72,7 +72,7 @@ const Header: React.FC = () => {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
+      <Typography variant="h6" sx={{ my: 2, fontWeight: 700 }}>
         AtonixCorp
       </Typography>
       <List>
@@ -84,9 +84,21 @@ const Header: React.FC = () => {
             sx={{
               textDecoration: 'none',
               color: isActivePath(item.path) ? 'primary.main' : 'text.primary',
+              borderRadius: '12px',
+              mx: 1,
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                transform: 'translateX(4px)',
+              },
             }}
           >
-            <ListItemText primary={item.name} />
+            <ListItemText 
+              primary={item.name} 
+              primaryTypographyProps={{
+                fontWeight: isActivePath(item.path) ? 600 : 400,
+              }}
+            />
           </ListItem>
         ))}
       </List>
@@ -95,18 +107,53 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <AppBar position="sticky" elevation={1}>
-        <Toolbar>
+      <AppBar 
+        position="sticky" 
+        elevation={0}
+        sx={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid #e2e8f0',
+          color: '#1e293b',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        <Toolbar sx={{ py: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <BusinessIcon sx={{ mr: 1 }} />
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                background: 'linear-gradient(135deg, #1e293b 0%, #3b82f6 100%)',
+                borderRadius: '12px',
+                p: 1,
+                mr: 2,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.2)',
+                },
+              }}
+            >
+              <BusinessIcon sx={{ color: 'white', fontSize: 28 }} />
+            </Box>
             <Typography
               variant="h6"
               component={Link}
               to="/"
               sx={{
                 textDecoration: 'none',
-                color: 'inherit',
-                fontWeight: 700,
+                color: '#1e293b',
+                fontWeight: 800,
+                fontSize: '1.5rem',
+                background: 'linear-gradient(135deg, #1e293b 0%, #3b82f6 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                },
               }}
             >
               AtonixCorp
@@ -119,32 +166,57 @@ const Header: React.FC = () => {
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
+              sx={{
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                color: '#3b82f6',
+                borderRadius: '12px',
+                '&:hover': {
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  transform: 'scale(1.05)',
+                },
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
             >
               <MenuIcon />
             </IconButton>
           ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               {navigation.map((item) => (
                 <Button
                   key={item.name}
                   component={Link}
                   to={item.path}
-                  color="inherit"
                   sx={{
-                    fontWeight: isActivePath(item.path) ? 600 : 400,
-                    borderBottom: isActivePath(item.path) ? 2 : 0,
-                    borderColor: 'white',
-                    borderRadius: 0,
+                    color: isActivePath(item.path) ? '#3b82f6' : '#64748b',
+                    fontWeight: isActivePath(item.path) ? 600 : 500,
+                    fontSize: '0.95rem',
+                    px: 2,
+                    py: 1,
+                    borderRadius: '12px',
+                    position: 'relative',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                      color: '#3b82f6',
+                      transform: 'translateY(-1px)',
                     },
+                    '&::after': isActivePath(item.path) ? {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '20px',
+                      height: '3px',
+                      backgroundColor: '#3b82f6',
+                      borderRadius: '2px',
+                    } : {},
                   }}
                 >
                   {item.name}
                 </Button>
               ))}
               
-              {/* User Authentication */}
               {isAuthenticated && user ? (
                 <Box sx={{ ml: 2 }}>
                   <IconButton
@@ -153,11 +225,25 @@ const Header: React.FC = () => {
                     aria-controls="menu-appbar"
                     aria-haspopup="true"
                     onClick={handleMenu}
-                    color="inherit"
+                    sx={{
+                      borderRadius: '12px',
+                      border: '2px solid #e2e8f0',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      '&:hover': {
+                        borderColor: '#3b82f6',
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1)',
+                      },
+                    }}
                   >
                     <Avatar 
                       src={user.avatar} 
-                      sx={{ width: 32, height: 32 }}
+                      sx={{ 
+                        width: 36, 
+                        height: 36,
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #1e293b 100%)',
+                        fontWeight: 600,
+                      }}
                     >
                       {user.first_name[0]}
                     </Avatar>
@@ -176,30 +262,74 @@ const Header: React.FC = () => {
                     }}
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
+                    sx={{
+                      '& .MuiPaper-root': {
+                        borderRadius: '16px',
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        backdropFilter: 'blur(20px)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        mt: 1,
+                        minWidth: '200px',
+                      },
+                    }}
                   >
-                    <MenuItem disabled>
-                      <Typography variant="body2" fontWeight="bold">
-                        {user.first_name} {user.last_name}
-                      </Typography>
+                    <MenuItem disabled sx={{ opacity: 1, cursor: 'default' }}>
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold" sx={{ color: '#1e293b' }}>
+                          {user.first_name} {user.last_name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748b' }}>
+                          @{user.username}
+                        </Typography>
+                      </Box>
                     </MenuItem>
-                    <MenuItem disabled>
-                      <Typography variant="caption" color="text.secondary">
-                        @{user.username}
-                      </Typography>
+                    <Divider sx={{ my: 1, backgroundColor: '#e2e8f0' }} />
+                    <MenuItem 
+                      onClick={handleClose}
+                      sx={{
+                        borderRadius: '8px',
+                        mx: 1,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                          transform: 'translateX(4px)',
+                        },
+                      }}
+                    >
+                      <AccountCircle sx={{ mr: 2, color: '#64748b' }} />
+                      <Typography variant="body2">Profile</Typography>
                     </MenuItem>
-                    <Divider />
-                    <MenuItem onClick={handleClose}>
-                      <AccountCircle sx={{ mr: 1 }} />
-                      Profile
+                    <MenuItem 
+                      onClick={handleClose}
+                      sx={{
+                        borderRadius: '8px',
+                        mx: 1,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                          transform: 'translateX(4px)',
+                        },
+                      }}
+                    >
+                      <Settings sx={{ mr: 2, color: '#64748b' }} />
+                      <Typography variant="body2">Settings</Typography>
                     </MenuItem>
-                    <MenuItem onClick={handleClose}>
-                      <Settings sx={{ mr: 1 }} />
-                      Settings
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem onClick={handleLogout}>
-                      <Logout sx={{ mr: 1 }} />
-                      Logout
+                    <Divider sx={{ my: 1, backgroundColor: '#e2e8f0' }} />
+                    <MenuItem 
+                      onClick={handleLogout}
+                      sx={{
+                        borderRadius: '8px',
+                        mx: 1,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                          transform: 'translateX(4px)',
+                        },
+                      }}
+                    >
+                      <Logout sx={{ mr: 2, color: '#ef4444' }} />
+                      <Typography variant="body2" sx={{ color: '#ef4444' }}>Logout</Typography>
                     </MenuItem>
                   </Menu>
                 </Box>
@@ -208,14 +338,19 @@ const Header: React.FC = () => {
                   <Button
                     component={Link}
                     to="/community"
-                    color="inherit"
                     startIcon={<Person />}
-                    variant="outlined"
+                    variant="contained"
                     sx={{ 
-                      borderColor: 'white',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #1e293b 100%)',
+                      borderRadius: '12px',
+                      px: 3,
+                      py: 1,
+                      fontWeight: 600,
+                      boxShadow: 'none',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
-                        borderColor: 'white',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)',
                       },
                     }}
                   >
@@ -233,11 +368,17 @@ const Header: React.FC = () => {
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: 280,
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            borderRight: '1px solid #e2e8f0',
+          },
         }}
       >
         {drawer}

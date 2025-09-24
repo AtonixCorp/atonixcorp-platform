@@ -8,28 +8,28 @@ set -e
 ENVIRONMENT=${1:-production}
 PROJECT_DIR="/home/atonixdev/atonixcorp-platform"
 
-echo "🚀 Deploying AtonixCorp Platform to $ENVIRONMENT environment..."
+echo "[DEPLOY] Deploying AtonixCorp Platform to $ENVIRONMENT environment..."
 
 # Change to project directory
 cd $PROJECT_DIR
 
 # Load environment variables
 if [ -f ".env.$ENVIRONMENT" ]; then
-    echo "📄 Loading environment variables from .env.$ENVIRONMENT"
+    echo "[INFO] Loading environment variables from .env.$ENVIRONMENT"
     export $(cat .env.$ENVIRONMENT | xargs)
 else
-    echo "⚠️  Warning: .env.$ENVIRONMENT file not found, using defaults"
+    echo "[WARN] Warning: .env.$ENVIRONMENT file not found, using defaults"
 fi
 
 # Function to check if Docker is running
 check_docker() {
     if ! command -v docker &> /dev/null; then
-        echo "❌ Docker is not installed"
+        echo "[ERROR] Docker is not installed"
         exit 1
     fi
     
     if ! docker info &> /dev/null; then
-        echo "❌ Docker is not running"
+        echo "[ERROR] Docker is not running"
         exit 1
     fi
     

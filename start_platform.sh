@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting AtonixCorp Platform..."
+echo "[START] Starting AtonixCorp Platform..."
 
 # Kill any existing processes
 echo "🧹 Cleaning up existing processes..."

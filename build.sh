@@ -3,7 +3,7 @@
 
 set -e
 
-echo "🚀 AtonixCorp Platform - Unified Container Builder"
+echo "[BUILD] AtonixCorp Platform - Unified Container Builder"
 echo "=================================================="
 
 # Configuration
@@ -145,7 +145,7 @@ push_image() {
 
 # Function to build, tag and push (full release)
 release_image() {
-    echo "🚀 Starting full release process..."
+    echo "[RELEASE] Starting full release process..."
     check_requirements
     build_container
     tag_image

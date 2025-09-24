@@ -1,6 +1,6 @@
 # AtonixCorp Platform - Deployment Guide
 
-## 🚀 Production Deployment
+## [DEPLOY] Production Deployment
 
 This guide walks you through deploying the AtonixCorp Platform to a production environment.
 

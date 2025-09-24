@@ -51,10 +51,10 @@ print_banner() {
     ║              AtonixCorp Platform Infrastructure              ║
     ║          Puppet + Gerrit + CNI Setup & Configuration        ║
     ║                                                              ║
-    ║  🔧 Puppet Configuration Management                          ║
-    ║  🔄 Gerrit Code Review & CI/CD                              ║
-    ║  🌐 CNI Container Networking                                ║
-    ║  📊 Comprehensive Monitoring                                ║
+    ║  [CONFIG] Puppet Configuration Management                   ║
+    ║  [CI/CD]  Gerrit Code Review & CI/CD                       ║
+    ║  [NET]    CNI Container Networking                          ║
+    ║  [MONITOR] Comprehensive Monitoring                         ║
     ╚══════════════════════════════════════════════════════════════╝
 EOF
     echo -e "${NC}"
@@ -272,17 +272,17 @@ run_tests() {
     # Test Gerrit
     info "Testing Gerrit connectivity..."
     if curl -f http://localhost:8081 > /dev/null 2>&1; then
-        info "✅ Gerrit is accessible"
+        info "[SUCCESS] Gerrit is accessible"
     else
-        warn "❌ Gerrit is not accessible"
+        warn "[ERROR] Gerrit is not accessible"
     fi
     
     # Test monitoring
     info "Testing monitoring services..."
     if systemctl is-active prometheus > /dev/null 2>&1; then
-        info "✅ Prometheus is running"
+        info "[SUCCESS] Prometheus is running"
     else
-        warn "❌ Prometheus is not running"
+        warn "[ERROR] Prometheus is not running"
     fi
     
     log "Infrastructure tests completed"
@@ -419,7 +419,7 @@ main() {
     run_tests
     create_documentation
     
-    log "🎉 AtonixCorp Platform Infrastructure setup completed successfully!"
+    log "[COMPLETE] AtonixCorp Platform Infrastructure setup completed successfully!"
     
     echo
     info "Infrastructure Services:"

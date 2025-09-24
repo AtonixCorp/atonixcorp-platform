@@ -48,7 +48,7 @@ usage() {
 # Function to start services
 start_services() {
     local env=${1:-dev}
-    echo -e "${GREEN}🚀 Starting AtonixCorp Platform ($env environment)...${NC}"
+    echo -e "${GREEN}[START] Starting AtonixCorp Platform ($env environment)...${NC}"
     
     if [ "$env" = "prod" ]; then
         docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d

@@ -21,11 +21,10 @@ import {
   Person,
   Email,
   Lock,
-  GitHub,
-  Google,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { SignupRequest } from '../../types/auth';
+import SocialLoginButtons from './SocialLoginButtons';
 
 interface SignupDialogProps {
   open: boolean;
@@ -329,28 +328,9 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ open, onClose, onSwitchToLo
             </Typography>
           </Divider>
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GitHub />}
-              disabled={loading}
-              onClick={() => console.log('GitHub signup')}
-            >
-              GitHub
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<Google />}
-              disabled={loading}
-              onClick={() => console.log('Google signup')}
-            >
-              Google
-            </Button>
-          </Box>
+          <SocialLoginButtons loading={loading} disabled={!acceptTerms} />
 
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: 'center', mt: 3 }}>
             <Typography variant="body2" color="text.secondary">
               Already have an account?{' '}
               <Link

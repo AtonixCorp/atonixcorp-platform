@@ -2,7 +2,7 @@
 
 This setup allows you to run both the Django backend and React frontend in a single container, making deployment and development much simpler.
 
-## 🚀 Quick Start
+## [START] Quick Start
 
 ### Prerequisites
 - nerdctl (or Docker)
@@ -184,7 +184,7 @@ Modify `docker/supervisord.conf` to:
 - Adjust logging
 - Configure auto-restart behavior
 
-## 🚀 Production Deployment
+## [DEPLOY] Production Deployment
 
 ### 1. Build for Production
 ```bash
