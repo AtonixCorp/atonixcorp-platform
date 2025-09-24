@@ -79,8 +79,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'django_extensions',
+    'drf_spectacular',  # API Documentation
     'security',  # Security module
-    'observability',  # OpenTelemetry observability
+    # 'observability',  # OpenTelemetry observability - Disabled for development
     'core',
     'projects',
     'teams',
@@ -92,8 +93,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'observability.middleware.OpenTelemetryMiddleware',  # OpenTelemetry tracing
-    'observability.middleware.PerformanceMonitoringMiddleware',  # Performance metrics
+    # 'observability.middleware.OpenTelemetryMiddleware',  # Disabled for development
+    # 'observability.middleware.PerformanceMonitoringMiddleware',  # Disabled for development
     'security.middleware.SecurityMiddleware',  # Custom security middleware
     'security.middleware.IPWhitelistMiddleware',  # IP whitelist for admin
     'security.middleware.RequestValidationMiddleware',  # Request validation
@@ -137,12 +138,20 @@ WSGI_APPLICATION = 'atonixcorp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Use SQLite for development, PostgreSQL for production
+if ENVIRONMENT == 'production' and 'DATABASE_URL' in os.environ:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ['DATABASE_URL'])
     }
-}
+else:
+    # Development SQLite database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -208,7 +217,93 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
         'user': '1000/hour'
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+    'ALLOWED_VERSIONS': ['v1'],
+    'EXCEPTION_HANDLER': 'core.api_utils.custom_exception_handler',
+}
+
+# API Documentation with drf-spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'AtonixCorp Platform API',
+    'DESCRIPTION': '''
+    Professional API for AtonixCorp Platform - A comprehensive project management and collaboration platform.
+    
+    ## Features
+    - 🚀 **Project Management** - Create, manage, and track projects
+    - 👥 **Team Collaboration** - Manage teams and team members
+    - 🎯 **Focus Areas** - Organize work by focus areas
+    - 📚 **Resource Management** - Manage and share resources
+    - 📊 **Analytics Dashboard** - Comprehensive insights and metrics
+    - 🔒 **Enterprise Security** - JWT authentication, API keys, rate limiting
+    - ⚡ **High Performance** - Redis caching, optimized queries
+    - 📡 **Real-time Features** - WebSocket support, live updates
+    
+    ## Authentication
+    The API supports multiple authentication methods:
+    - **JWT Tokens** - Bearer token authentication
+    - **API Keys** - For service-to-service communication
+    - **Session Authentication** - For web browser clients
+    
+    ## Rate Limiting
+    - **Authenticated Users**: 1000 requests/hour
+    - **Anonymous Users**: 100 requests/hour
+    
+    ## Support
+    For technical support, contact: support@atonixcorp.com
+    ''',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': False,
+        'defaultModelsExpandDepth': 1,
+        'defaultModelRendering': 'example',
+        'displayRequestDuration': True,
+        'docExpansion': 'none',
+        'filter': True,
+        'showExtensions': True,
+        'showCommonExtensions': True,
+    },
+    'REDOC_DIST': 'SIDECAR',
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SORT_OPERATIONS': False,
+    'ENABLE_DJANGO_DEPLOY_CHECK': False,
+    'DISABLE_ERRORS_AND_WARNINGS': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'SCHEMA_PATH_PREFIX_TRIM': True,
+    'SERVERS': [
+        {
+            'url': 'http://localhost:8000',
+            'description': 'Development Server'
+        },
+        {
+            'url': 'https://api.atonixcorp.org',
+            'description': 'Production Server'
+        }
+    ],
+    'EXTERNAL_DOCS': {
+        'description': 'AtonixCorp Platform Documentation',
+        'url': 'https://docs.atonixcorp.org'
+    },
+    'CONTACT': {
+        'name': 'AtonixCorp API Team',
+        'email': 'api@atonixcorp.com',
+        'url': 'https://atonixcorp.org/contact'
+    },
+    'LICENSE': {
+        'name': 'Proprietary',
+        'url': 'https://atonixcorp.org/license'
+    },
 }
 
 # CORS settings for React frontend
@@ -403,21 +498,21 @@ SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 # =============================================================================
 
 # OpenTelemetry settings
-OTEL_ENABLED = env.bool('OTEL_ENABLED', default=True)
+OTEL_ENABLED = env.bool('OTEL_ENABLED', default=False)  # Disable by default for development
 OTEL_SERVICE_NAME = env('OTEL_SERVICE_NAME', default='atonixcorp-platform')
 OTEL_SERVICE_VERSION = env('OTEL_SERVICE_VERSION', default='1.0.0')
 OTEL_RESOURCE_ATTRIBUTES = env('OTEL_RESOURCE_ATTRIBUTES', default='')
 
 # Tracing configuration
-OTEL_ENABLE_CONSOLE = env.bool('OTEL_ENABLE_CONSOLE', default=DEBUG)
-OTEL_ENABLE_JAEGER = env.bool('OTEL_ENABLE_JAEGER', default=True)
+OTEL_ENABLE_CONSOLE = env.bool('OTEL_ENABLE_CONSOLE', default=False)  # Disable by default
+OTEL_ENABLE_JAEGER = env.bool('OTEL_ENABLE_JAEGER', default=False)   # Disable by default
 OTEL_ENABLE_OTLP = env.bool('OTEL_ENABLE_OTLP', default=False)
 JAEGER_ENDPOINT = env('JAEGER_ENDPOINT', default='http://localhost:14268/api/traces')
 JAEGER_AGENT_HOST = env('JAEGER_AGENT_HOST', default='localhost')
 JAEGER_AGENT_PORT = int(env('JAEGER_AGENT_PORT', default=6831))
 
 # Metrics configuration
-OTEL_ENABLE_PROMETHEUS = env.bool('OTEL_ENABLE_PROMETHEUS', default=True)
+OTEL_ENABLE_PROMETHEUS = env.bool('OTEL_ENABLE_PROMETHEUS', default=False)  # Disable by default
 PROMETHEUS_METRICS_PORT = int(env('PROMETHEUS_METRICS_PORT', default=8001))
 
 # OTLP configuration
@@ -429,11 +524,13 @@ OTEL_TRACES_SAMPLER = env('OTEL_TRACES_SAMPLER', default='parentbased_traceidrat
 OTEL_TRACES_SAMPLER_ARG = float(env('OTEL_TRACES_SAMPLER_ARG', default=1.0))
 
 # Initialize OpenTelemetry if enabled
-if OTEL_ENABLED:
-    try:
-        from observability import initialize_opentelemetry
-        initialize_opentelemetry()
-    except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(f'Failed to initialize OpenTelemetry: {e}')
+# Disabled for development to avoid configuration issues
+# if OTEL_ENABLED:
+#     try:
+#         from observability import initialize_opentelemetry
+#         initialize_opentelemetry()
+#     except Exception as e:
+#         import logging
+#         logger = logging.getLogger(__name__)
+#         logger.warning(f'Failed to initialize OpenTelemetry: {e}')
+#         # Continue without OpenTelemetry instead of failing

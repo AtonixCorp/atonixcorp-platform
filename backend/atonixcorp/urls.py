@@ -20,57 +20,129 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_spectacular.utils import extend_schema
 from .auth_views import LoginView, SignupView, LogoutView, MeView
 from core.health import health_check
+from core.api_utils import APIRootSerializer
+
+# Import custom admin
+from core.admin import admin_site
 
 
+@extend_schema(
+    operation_id="api_root",
+    description="API Root endpoint providing comprehensive information about available endpoints",
+    responses={200: APIRootSerializer},
+    tags=["API Info"]
+)
 @api_view(['GET'])
 def api_root(request):
-    """API root endpoint providing available endpoints"""
+    """
+    API Root Endpoint
+    
+    Welcome to the AtonixCorp Platform API! This endpoint provides an overview 
+    of all available API endpoints and their capabilities.
+    
+    ## Quick Start
+    1. **Authentication**: Obtain a JWT token via `/api/auth/login/`
+    2. **Explore**: Browse available endpoints below
+    3. **Documentation**: Visit `/api/docs/` for interactive API documentation
+    4. **Health Check**: Monitor API status at `/health/`
+    
+    ## Features
+    - 🔒 **Secure**: JWT authentication and API key support
+    - 📊 **Comprehensive**: Full CRUD operations for all resources
+    - ⚡ **Fast**: Optimized queries and Redis caching
+    - 📖 **Well Documented**: Complete OpenAPI 3.0 specifications
+    """
+    base_url = request.build_absolute_uri('/').rstrip('/')
+    
     return Response({
         'message': 'Welcome to AtonixCorp Platform API',
-        'version': '1.0',
+        'version': '1.0.0',
+        'status': 'operational',
+        'timestamp': '2024-09-24T00:00:00Z',
+        'documentation': {
+            'swagger_ui': f'{base_url}/api/docs/',
+            'redoc': f'{base_url}/api/redoc/',
+            'openapi_schema': f'{base_url}/api/schema/',
+        },
+        'authentication': {
+            'login': f'{base_url}/api/auth/login/',
+            'signup': f'{base_url}/api/auth/signup/',
+            'logout': f'{base_url}/api/auth/logout/',
+            'profile': f'{base_url}/api/auth/me/',
+        },
         'endpoints': {
-            'projects': '/api/projects/',
-            'teams': '/api/teams/',
-            'focus_areas': '/api/focus-areas/',
-            'resources': '/api/resources/',
-            'contact': '/api/contact/',
-            'dashboard': '/api/dashboard/',
-            'zookeeper': '/api/zookeeper/',
-            'auth': {
-                'login': '/api/auth/login/',
-                'signup': '/api/auth/signup/',
-                'logout': '/api/auth/logout/',
-                'me': '/api/auth/me/',
+            'projects': {
+                'url': f'{base_url}/api/projects/',
+                'description': 'Project management and tracking'
             },
-            'admin': '/admin/',
+            'teams': {
+                'url': f'{base_url}/api/teams/',
+                'description': 'Team collaboration and member management'
+            },
+            'focus_areas': {
+                'url': f'{base_url}/api/focus-areas/',
+                'description': 'Focus area categorization and organization'
+            },
+            'resources': {
+                'url': f'{base_url}/api/resources/',
+                'description': 'Resource management and sharing'
+            },
+            'dashboard': {
+                'url': f'{base_url}/api/dashboard/',
+                'description': 'Analytics and dashboard data'
+            },
+            'contact': {
+                'url': f'{base_url}/api/contact/',
+                'description': 'Contact form and communication'
+            },
+        },
+        'system': {
+            'health_check': f'{base_url}/health/',
+            'admin_panel': f'{base_url}/admin/',
+        },
+        'support': {
+            'email': 'support@atonixcorp.com',
+            'documentation': 'https://docs.atonixcorp.org',
+            'website': 'https://atonixcorp.org'
         }
     })
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Professional Admin interface
+    path('admin/', admin_site.urls),
+    
+    # API Documentation - Professional Swagger UI and ReDoc
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    
+    # API Root - Welcome endpoint with full API overview
     path('api/', api_root, name='api-root'),
     
-    # Health check endpoint
+    # Health check endpoints
+    path('api/health/', health_check, name='api-health-check'),
     path('health/', health_check, name='health-check'),
     
-    # Authentication endpoints
-    path('api/auth/login/', LoginView.as_view(), name='login'),
-    path('api/auth/signup/', SignupView.as_view(), name='signup'),
-    path('api/auth/logout/', LogoutView.as_view(), name='logout'),
-    path('api/auth/me/', MeView.as_view(), name='me'),
+    # Authentication endpoints  
+    path('api/auth/login/', LoginView.as_view(), name='api-login'),
+    path('api/auth/signup/', SignupView.as_view(), name='api-signup'),
+    path('api/auth/logout/', LogoutView.as_view(), name='api-logout'),
+    path('api/auth/me/', MeView.as_view(), name='api-me'),
     
-    # App endpoints
-    path('', include('projects.urls')),
-    path('', include('teams.urls')),
-    path('', include('focus_areas.urls')),
-    path('', include('resources.urls')),
-    path('', include('contact.urls')),
+    # Core application endpoints
+    path('api/', include('projects.urls')),
+    path('api/', include('teams.urls')),
+    path('api/', include('focus_areas.urls')),
+    path('api/', include('resources.urls')),
+    path('api/', include('contact.urls')),
     path('api/dashboard/', include('dashboard.urls')),
     
-    # Zookeeper endpoints
+    # System and monitoring endpoints
     path('api/zookeeper/', include('core.zookeeper_urls')),
 ]
 
