@@ -25,7 +25,7 @@ from drf_spectacular.utils import extend_schema
 from .auth_views import LoginView, SignupView, LogoutView, MeView
 from core.health import health_check
 from core.api_utils import APIRootSerializer
-from core.views import landing_page, api_info
+from core.views import landing_page, api_info, api_documentation
 
 # Import custom admin
 # from core.admin import admin_site  # Temporarily disabled
@@ -130,6 +130,9 @@ urlpatterns = [
     
     # API Information endpoint
     path('api/info/', api_info, name='api-info'),
+    
+    # Professional API Documentation page
+    path('api/documentation/', api_documentation, name='api-documentation'),
     
     # Health check endpoints
     path('api/health/', health_check, name='api-health-check'),

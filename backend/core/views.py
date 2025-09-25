@@ -171,3 +171,32 @@ def api_info(request):
         data=info_data,
         message="API information retrieved successfully"
     )
+
+
+def api_documentation(request):
+    """
+    Professional API documentation page.
+    
+    This view renders a comprehensive, professional documentation page
+    with detailed information about all API endpoints, authentication,
+    examples, and best practices.
+    """
+    context = {
+        'api_version': '1.0.0',
+        'environment': getattr(settings, 'ENVIRONMENT', 'development'),
+        'base_url': request.build_absolute_uri('/'),
+        'api_url': request.build_absolute_uri('/api/'),
+        'docs_url': request.build_absolute_uri('/api/docs/'),
+        'redoc_url': request.build_absolute_uri('/api/redoc/'),
+        'health_url': request.build_absolute_uri('/api/health/'),
+        'admin_url': request.build_absolute_uri('/admin/'),
+        'projects_url': request.build_absolute_uri('/api/projects/'),
+        'teams_url': request.build_absolute_uri('/api/teams/'),
+        'dashboard_url': request.build_absolute_uri('/api/dashboard/'),
+        'auth_url': request.build_absolute_uri('/api/auth/'),
+        'contact_url': request.build_absolute_uri('/api/contact/'),
+        'focus_areas_url': request.build_absolute_uri('/api/focus-areas/'),
+        'resources_url': request.build_absolute_uri('/api/resources/'),
+    }
+    
+    return render(request, 'api/documentation.html', context)
