@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-AtonixCorp Platform Security Setup Script
-Comprehensive security implementation and configuration
-"""
+
+
 
 import os
 import sys

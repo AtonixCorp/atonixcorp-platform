@@ -22,6 +22,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { LoginRequest } from '../../types/auth';
 import SocialLoginButtons from './SocialLoginButtons';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ interface LoginDialogProps {
 
 const LoginDialog: React.FC<LoginDialogProps> = ({ open, onClose, onSwitchToSignup }) => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginRequest>({
     email: '',
     password: '',
@@ -65,6 +67,8 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, onClose, onSwitchToSign
       onClose();
       // Reset form
       setFormData({ email: '', password: '' });
+      // Redirect to dashboard
+      navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     } finally {
@@ -81,8 +85,8 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, onClose, onSwitchToSign
 
   const handleDemoLogin = () => {
     setFormData({
-      email: 'test@example.com',
-      password: 'TestPass123',
+      email: 'demo@example.com',
+      password: 'password',
     });
   };
 
@@ -116,7 +120,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, onClose, onSwitchToSign
         <Alert severity="info" sx={{ mb: 3 }}>
           <Typography variant="body2">
             <strong>Demo Credentials:</strong><br />
-            Username: demo, Password: password
+            Email: demo@example.com, Password: password
             <Button
               size="small"
               onClick={handleDemoLogin}

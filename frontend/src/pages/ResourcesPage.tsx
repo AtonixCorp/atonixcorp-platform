@@ -34,6 +34,7 @@ import {
   Download,
   OpenInNew,
 } from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 import { resourcesApi } from '../services/api';
 import { Resource, ResourceCategory, CommunityLink, FAQ } from '../types/api';
 
@@ -59,6 +60,9 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const ResourcesPage: React.FC = () => {
+  const location = useLocation();
+  const isDashboardMode = location.pathname.startsWith('/dashboard');
+
   const [tabValue, setTabValue] = useState(0);
   const [resources, setResources] = useState<Resource[]>([]);
   const [categories, setCategories] = useState<ResourceCategory[]>([]);
@@ -116,20 +120,34 @@ const ResourcesPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography>Loading resources...</Typography>
-      </Container>
+      <Box sx={{ py: isDashboardMode ? 0 : 4 }}>
+        {!isDashboardMode && (
+          <Container maxWidth="lg">
+            <Typography>Loading resources...</Typography>
+          </Container>
+        )}
+        {isDashboardMode && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Resources
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Loading resources...
+            </Typography>
+          </Box>
+        )}
+      </Box>
     );
   }
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+  const content = (
+    <>
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography variant="h2" component="h1" sx={{ mb: 2, fontWeight: 600 }}>
+        <Typography variant={isDashboardMode ? "h4" : "h2"} component="h1" sx={{ mb: 2, fontWeight: 600 }}>
           Developer Resources
         </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant={isDashboardMode ? "body1" : "h6"} color="text.secondary" sx={{ mb: 4 }}>
           Everything you need to build with AtonixCorp
         </Typography>
         
@@ -422,6 +440,24 @@ const ResourcesPage: React.FC = () => {
           ))}
         </Box>
       </TabPanel>
+    </>
+  );
+
+  return isDashboardMode ? (
+    <Box>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Resources
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Everything you need to build with AtonixCorp
+        </Typography>
+      </Box>
+      {content}
+    </Box>
+  ) : (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {content}
     </Container>
   );
 };

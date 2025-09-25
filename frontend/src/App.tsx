@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 // Components
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
+import DashboardLayout from './components/Layout/DashboardLayout';
 
 // Context
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Observability
 import { initializeOpenTelemetry } from './observability/telemetry';
@@ -28,8 +29,42 @@ import CommunityPage from './pages/CommunityPage';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 
+// Dashboard Pages
+import AnalyticsPage from './pages/AnalyticsPage';
+import TasksPage from './pages/TasksPage';
+import SettingsPage from './pages/SettingsPage';
+import SchedulePage from './pages/SchedulePage';
+import SecurityPage from './pages/SecurityPage';
+import ProfilePage from './pages/ProfilePage';
+import MyProjectsPage from './pages/MyProjectsPage';
+import ProjectAnalyticsPage from './pages/ProjectAnalyticsPage';
+import HelpPage from './pages/HelpPage';
+import DashboardTeamsPage from './pages/DashboardTeamsPage';
+
 // Auth Components
 import SocialCallback from './components/Auth/SocialCallback';
+
+// Protected Route Component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <Typography>Loading...</Typography>
+      </Box>
+    );
+  }
+
+  return isAuthenticated ? <>{children}</> : null;
+};
 
 // Create premium professional theme for AtonixCorp
 const theme = createTheme({
@@ -319,7 +354,81 @@ function App() {
               <Box component="main" sx={{ flex: 1 }}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/analytics" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <AnalyticsPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/tasks" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <TasksPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/teams" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <DashboardTeamsPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/settings" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <SettingsPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/schedule" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <SchedulePage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/security" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <SecurityPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/profile" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <ProfilePage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/projects" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <MyProjectsPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/project-analytics" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <ProjectAnalyticsPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/help" element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <HelpPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  } />
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/projects/:slug" element={<ProjectDetailPage />} />
                   <Route path="/teams" element={<TeamsPage />} />

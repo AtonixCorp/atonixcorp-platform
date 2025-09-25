@@ -34,6 +34,7 @@ import {
   GitHub,
   LinkedIn,
 } from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { mockCommunityService } from '../services/authService';
 import { CommunityMember, Discussion } from '../types/auth';
@@ -64,6 +65,9 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const CommunityPage: React.FC = () => {
+  const location = useLocation();
+  const isDashboardMode = location.pathname.startsWith('/dashboard');
+
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
   const [members, setMembers] = useState<CommunityMember[]>([]);
@@ -125,9 +129,19 @@ const CommunityPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Skeleton variant="text" height={60} sx={{ mb: 2 }} />
-        <Skeleton variant="text" height={40} sx={{ mb: 4 }} />
+      <Box sx={{ py: isDashboardMode ? 0 : 4 }}>
+        {!isDashboardMode && (
+          <Container maxWidth="lg">
+            <Skeleton variant="text" height={60} sx={{ mb: 2 }} />
+            <Skeleton variant="text" height={40} sx={{ mb: 4 }} />
+          </Container>
+        )}
+        {isDashboardMode && (
+          <Box sx={{ mb: 3 }}>
+            <Skeleton variant="text" height={40} sx={{ mb: 2 }} />
+            <Skeleton variant="text" height={30} />
+          </Box>
+        )}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 4 }}>
           <Box>
             {[...Array(3)].map((_, index) => (
@@ -153,22 +167,22 @@ const CommunityPage: React.FC = () => {
             </Card>
           </Box>
         </Box>
-      </Container>
+      </Box>
     );
   }
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+  const content = (
+    <>
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography variant="h2" component="h1" fontWeight="bold" gutterBottom>
+        <Typography variant={isDashboardMode ? "h4" : "h2"} component="h1" fontWeight="bold" gutterBottom>
           AtonixCorp Community
         </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant={isDashboardMode ? "body1" : "h6"} color="text.secondary" sx={{ mb: 4 }}>
           Connect, collaborate, and contribute with fellow developers and innovators
         </Typography>
         
-        {!isAuthenticated && (
+        {!isAuthenticated && !isDashboardMode && (
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
             <Button
               variant="contained"
@@ -548,6 +562,24 @@ const CommunityPage: React.FC = () => {
           setLoginOpen(true);
         }}
       />
+    </>
+  );
+
+  return isDashboardMode ? (
+    <Box>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Community
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Connect, collaborate, and contribute with fellow developers and innovators
+        </Typography>
+      </Box>
+      {content}
+    </Box>
+  ) : (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {content}
     </Container>
   );
 };

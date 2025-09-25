@@ -2,7 +2,6 @@
 
 ## [SECURITY] Comprehensive Security Protection
 
-Your platform now includes enterprise-grade security features to protect against various types of attacks:
 
 ### [ENCRYPTION] **Data Encryption**
 - **Field-level encryption** for sensitive data using Fernet symmetric encryption

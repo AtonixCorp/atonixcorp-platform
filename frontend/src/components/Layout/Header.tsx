@@ -27,12 +27,16 @@ import {
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import LoginDialog from '../Auth/LoginDialog';
+import SignupDialog from '../Auth/SignupDialog';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
@@ -52,6 +56,32 @@ const Header: React.FC = () => {
   const handleLogout = () => {
     logout();
     handleClose();
+  };
+
+  const handleLoginOpen = () => {
+    setLoginOpen(true);
+  };
+
+  const handleSignupOpen = () => {
+    setSignupOpen(true);
+  };
+
+  const handleLoginClose = () => {
+    setLoginOpen(false);
+  };
+
+  const handleSignupClose = () => {
+    setSignupOpen(false);
+  };
+
+  const handleSwitchToSignup = () => {
+    setLoginOpen(false);
+    setSignupOpen(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setSignupOpen(false);
+    setLoginOpen(true);
   };
 
   const navigation = [
@@ -353,11 +383,30 @@ const Header: React.FC = () => {
                   </Menu>
                 </Box>
               ) : (
-                <Box sx={{ ml: 2 }}>
+                <Box sx={{ ml: 2, display: 'flex', gap: 1 }}>
                   <Button
-                    component={Link}
-                    to="/community"
+                    onClick={handleLoginOpen}
                     startIcon={<Person />}
+                    variant="outlined"
+                    sx={{ 
+                      borderColor: '#3b82f6',
+                      color: '#3b82f6',
+                      borderRadius: '12px',
+                      px: 3,
+                      py: 1,
+                      fontWeight: 600,
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                        borderColor: '#3b82f6',
+                        transform: 'translateY(-1px)',
+                      },
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    onClick={handleSignupOpen}
                     variant="contained"
                     sx={{ 
                       background: 'linear-gradient(135deg, #3b82f6 0%, #1e293b 100%)',
@@ -373,7 +422,7 @@ const Header: React.FC = () => {
                       },
                     }}
                   >
-                    Sign In
+                    Sign Up
                   </Button>
                 </Box>
               )}
@@ -402,6 +451,18 @@ const Header: React.FC = () => {
       >
         {drawer}
       </Drawer>
+
+      {/* Authentication Dialogs */}
+      <LoginDialog
+        open={loginOpen}
+        onClose={handleLoginClose}
+        onSwitchToSignup={handleSwitchToSignup}
+      />
+      <SignupDialog
+        open={signupOpen}
+        onClose={handleSignupClose}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
     </>
   );
 };

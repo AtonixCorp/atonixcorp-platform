@@ -141,7 +141,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         {
           text: 'All Projects',
           icon: <Folder />,
-          path: '/projects',
+          path: '/dashboard/projects',
         },
         {
           text: 'My Projects',
@@ -163,30 +163,30 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         {
           text: 'Teams',
           icon: <People />,
-          path: '/teams',
+          path: '/dashboard/teams',
         },
         {
           text: 'Focus Areas',
           icon: <FocusAreasIcon />,
-          path: '/focus-areas',
+          path: '/dashboard/focus-areas',
         },
         {
           text: 'Resources',
           icon: <ResourcesIcon />,
-          path: '/resources',
+          path: '/dashboard/resources',
         },
       ],
     },
     {
       text: 'Community',
       icon: <CommunityIcon />,
-      path: '/community',
+      path: '/dashboard/community',
       badge: 8,
     },
     {
       text: 'Contact',
       icon: <ContactIcon />,
-      path: '/contact',
+      path: '/dashboard/contact',
     },
   ];
 

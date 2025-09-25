@@ -1,6 +1,5 @@
 # AtonixCorp Platform - Kubernetes Infrastructure
-
-This directory contains Terraform configurations for deploying the AtonixCorp Platform to Kubernetes clusters.
+# ==========================================
 
 ## [ARCHITECTURE] Architecture Overview
 

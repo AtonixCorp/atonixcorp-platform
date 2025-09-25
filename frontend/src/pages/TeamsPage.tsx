@@ -30,12 +30,15 @@ import {
   EmojiEvents,
   TrendingUp,
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Team } from '../types/api';
 import { mockTeamService } from '../data/mockData';
 import { teamsApi } from '../services/api';
 
 const TeamsPage: React.FC = () => {
+  const location = useLocation();
+  const isDashboardMode = location.pathname.startsWith('/dashboard');
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,11 +91,21 @@ const TeamsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Skeleton variant="text" height={60} sx={{ mb: 2 }} />
-          <Skeleton variant="text" height={40} />
-        </Box>
+      <Box sx={{ py: isDashboardMode ? 0 : 4 }}>
+        {!isDashboardMode && (
+          <Container maxWidth="lg">
+            <Box sx={{ textAlign: 'center', mb: 6 }}>
+              <Skeleton variant="text" height={60} sx={{ mb: 2 }} />
+              <Skeleton variant="text" height={40} />
+            </Box>
+          </Container>
+        )}
+        {isDashboardMode && (
+          <Box sx={{ mb: 3 }}>
+            <Skeleton variant="text" height={40} sx={{ mb: 2 }} />
+            <Skeleton variant="text" height={30} />
+          </Box>
+        )}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 4 }}>
           {[...Array(2)].map((_, index) => (
             <Card key={index}>
@@ -109,18 +122,18 @@ const TeamsPage: React.FC = () => {
             </Card>
           ))}
         </Box>
-      </Container>
+      </Box>
     );
   }
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+  const content = (
+    <>
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography variant="h2" component="h1" fontWeight="bold" gutterBottom>
+        <Typography variant={isDashboardMode ? "h4" : "h2"} component="h1" fontWeight="bold" gutterBottom>
           Our Teams
         </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant={isDashboardMode ? "body1" : "h6"} color="text.secondary" sx={{ mb: 4 }}>
           Meet the talented teams behind AtonixCorp's success
         </Typography>
         
@@ -275,7 +288,7 @@ const TeamsPage: React.FC = () => {
 
               <Button
                 component={Link}
-                to={`/teams/${team.slug}`}
+                to={isDashboardMode ? `/dashboard/teams/${team.slug}` : `/teams/${team.slug}`}
                 variant="contained"
                 fullWidth
                 size="large"
@@ -370,48 +383,68 @@ const TeamsPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Call to Action */}
-      <Card sx={{ textAlign: 'center', p: 4, background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', color: 'white' }}>
-        <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
-          Want to Join Our Teams?
-        </Typography>
-        <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
-          We're always looking for talented individuals to join our innovative teams
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Button
-            component={Link}
-            to="/contact"
-            variant="contained"
-            size="large"
-            sx={{ 
-              backgroundColor: 'white',
-              color: 'primary.main',
-              '&:hover': {
-                backgroundColor: 'grey.100',
-              }
-            }}
-          >
-            View Open Positions
-          </Button>
-          <Button
-            component={Link}
-            to="/community"
-            variant="outlined"
-            size="large"
-            sx={{ 
-              borderColor: 'white',
-              color: 'white',
-              '&:hover': {
+      {/* Call to Action - Only show outside dashboard */}
+      {!isDashboardMode && (
+        <Card sx={{ textAlign: 'center', p: 4, background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', color: 'white' }}>
+          <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+            Want to Join Our Teams?
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
+            We're always looking for talented individuals to join our innovative teams
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Button
+              component={Link}
+              to="/contact"
+              variant="contained"
+              size="large"
+              sx={{ 
+                backgroundColor: 'white',
+                color: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'grey.100',
+                }
+              }}
+            >
+              View Open Positions
+            </Button>
+            <Button
+              component={Link}
+              to="/community"
+              variant="outlined"
+              size="large"
+              sx={{ 
                 borderColor: 'white',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              }
-            }}
-          >
-            Join Our Community
-          </Button>
-        </Box>
-      </Card>
+                color: 'white',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                }
+              }}
+            >
+              Join Our Community
+            </Button>
+          </Box>
+        </Card>
+      )}
+    </>
+  );
+
+  return isDashboardMode ? (
+    <Box>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Our Teams
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Meet the talented teams behind AtonixCorp's success
+        </Typography>
+      </Box>
+      {content}
+    </Box>
+  ) : (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {content}
     </Container>
   );
 };

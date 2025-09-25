@@ -16,12 +16,15 @@ import {
   Skeleton,
   SelectChangeEvent,
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Project, Technology, FocusArea } from '../types/api';
 import { mockProjectService, mockTechnologyService, mockFocusAreaService } from '../data/mockData';
 import { projectsApi } from '../services/api';
 
 const ProjectsPage: React.FC = () => {
+  const location = useLocation();
+  const isDashboardMode = location.pathname.startsWith('/dashboard');
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [technologies, setTechnologies] = useState<Technology[]>([]);
@@ -143,13 +146,27 @@ const ProjectsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          Projects
-        </Typography>
-        <Typography variant="h6" color="text.secondary" paragraph>
-          Explore our innovative projects and initiatives
-        </Typography>
+      <Box sx={{ py: isDashboardMode ? 0 : 4 }}>
+        {!isDashboardMode && (
+          <Container maxWidth="lg">
+            <Typography variant="h3" component="h1" gutterBottom>
+              Projects
+            </Typography>
+            <Typography variant="h6" color="text.secondary" paragraph>
+              Explore our innovative projects and initiatives
+            </Typography>
+          </Container>
+        )}
+        {isDashboardMode && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Projects
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Explore our innovative projects and initiatives
+            </Typography>
+          </Box>
+        )}
 
         {/* Loading Skeleton */}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
@@ -157,16 +174,27 @@ const ProjectsPage: React.FC = () => {
             <Skeleton variant="rectangular" height={300} key={index} />
           ))}
         </Box>
-      </Container>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          Projects
-        </Typography>
+      <Box sx={{ py: isDashboardMode ? 0 : 4 }}>
+        {!isDashboardMode && (
+          <Container maxWidth="lg">
+            <Typography variant="h3" component="h1" gutterBottom>
+              Projects
+            </Typography>
+          </Container>
+        )}
+        {isDashboardMode && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Projects
+            </Typography>
+          </Box>
+        )}
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" color="error" gutterBottom>
             {error}
@@ -204,19 +232,12 @@ const ProjectsPage: React.FC = () => {
             Try Again
           </Button>
         </Box>
-      </Container>
+      </Box>
     );
   }
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Projects
-      </Typography>
-      <Typography variant="h6" color="text.secondary" paragraph>
-        Explore our innovative projects and initiatives
-      </Typography>
-
+  const content = (
+    <>
       {/* Filters Section */}
       <Card sx={{ p: 3, mb: 4 }}>
         <Typography variant="h6" gutterBottom>
@@ -402,7 +423,7 @@ const ProjectsPage: React.FC = () => {
               <CardActions sx={{ p: 2, pt: 0 }}>
                 <Button
                   component={Link}
-                  to={`/projects/${project.id}`}
+                  to={isDashboardMode ? `/dashboard/projects/${project.id}` : `/projects/${project.id}`}
                   variant="contained"
                   fullWidth
                 >
@@ -414,31 +435,57 @@ const ProjectsPage: React.FC = () => {
         </Box>
       )}
 
-      {/* Call to Action */}
-      <Card sx={{ mt: 6, p: 4, textAlign: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-        <Typography variant="h5" gutterBottom>
-          Have a Project Idea?
+      {/* Call to Action - Only show outside dashboard */}
+      {!isDashboardMode && (
+        <Card sx={{ mt: 6, p: 4, textAlign: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+          <Typography variant="h5" gutterBottom>
+            Have a Project Idea?
+          </Typography>
+          <Typography variant="body1" paragraph>
+            We're always looking for innovative projects to work on. Get in touch with us!
+          </Typography>
+          <Button
+            component={Link}
+            to="/contact"
+            variant="contained"
+            color="inherit"
+            size="large"
+            sx={{ 
+              color: 'primary.main',
+              backgroundColor: 'white',
+              '&:hover': {
+                backgroundColor: 'grey.100',
+              }
+            }}
+          >
+            Contact Us
+          </Button>
+        </Card>
+      )}
+    </>
+  );
+
+  return isDashboardMode ? (
+    <Box>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Projects
         </Typography>
-        <Typography variant="body1" paragraph>
-          We're always looking for innovative projects to work on. Get in touch with us!
+        <Typography variant="body1" color="text.secondary">
+          Explore our innovative projects and initiatives
         </Typography>
-        <Button
-          component={Link}
-          to="/contact"
-          variant="contained"
-          color="inherit"
-          size="large"
-          sx={{ 
-            color: 'primary.main',
-            backgroundColor: 'white',
-            '&:hover': {
-              backgroundColor: 'grey.100',
-            }
-          }}
-        >
-          Contact Us
-        </Button>
-      </Card>
+      </Box>
+      {content}
+    </Box>
+  ) : (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom>
+        Projects
+      </Typography>
+      <Typography variant="h6" color="text.secondary" paragraph>
+        Explore our innovative projects and initiatives
+      </Typography>
+      {content}
     </Container>
   );
 };
