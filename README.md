@@ -1,6 +1,6 @@
 # AtonixCorp Platform
 
-A comprehensive full-stack platform showcasing AtonixCorp's projects, teams, focus areas, resources, and community features. Built with Django REST API backend and React TypeScript frontend.
+AtonixCorp is a forward-thinking infrastructure and systems engineering organization dedicated to building secure, scalable, and autonomous cloud solutions. We design and deploy resilient architectures that adapt seamlessly across diverse environments—from smart cities to high-performance clusters. With a strong emphasis on edge computing, next-generation observability, and future-ready design, our mission is to empower organizations with infrastructure that evolves intelligently, operates reliably, and unlocks new frontiers in connectivity and computation.
 
 ## [FEATURES] Features
 
